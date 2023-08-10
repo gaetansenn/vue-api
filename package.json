@@ -1,0 +1,47 @@
+{
+  "name": "vue-api",
+  "version": "1.0.0",
+  "description": "A flexible and provider-agnostic API handling library for Vue 3 and Nuxt 3. Supports multiple data providers like axios, ofetch, and GraphQL, and includes a robust model mapping feature.",
+  "main": "index.js",
+  "repository": "git@github.com:gaetansenn/vue-api.git",
+  "author": "Gaetan SENN <gaetan.senn@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "docs/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build --filter=!playground",
+    "dev:docs": "turbo run dev --filter=docs",
+    "build:nuxt-example": "turbo run generate --filter=nuxt-example",
+    "build:vue-example": "turbo run build --filter=vue-example",
+    "build:docs": "turbo run generate --filter=docs",
+    "dev:vue-example": "turbo run dev --filter=vue-example",
+    "dev:nuxt-example": "turbo run dev --filter=nuxt-example",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "turbo run test",
+    "test:core": "turbo run test --filter=@vue-api/core",
+    "dev:prepare": "turbo run dev:prepare",
+    "deploy": "turbo run deploy",
+    "changeset": "changeset",
+    "bump": "changeset version",
+    "release": "turbo run build --filter='./packages/*' lint test && changeset publish",
+    "tag": "changeset tag",
+    "removechangelogs": "find . -path ./node_modules -prune -o -name CHANGELOG.md -print | xargs rm"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@commitlint/cli": "^17.2.0",
+    "@commitlint/config-conventional": "^17.2.0",
+    "husky": "^8.0.2",
+    "prettier": "^2.8.4",
+    "standard-version": "^9.5.0",
+    "turbo": "^1.10.11"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "nuxt-example",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:prepare": "nuxi prepare",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "changelog": "standard-version"
+  },
+  "dependencies": {
+    "@vue-api/nuxt": "*"
+  },
+  "devDependencies": {
+    "nuxt": "^3.2.3"
+  },
+  "standard-version": {
+    "skip": {
+      "bump": true,
+      "commit": true,
+      "tag": true
+    },
+    "tag-prefix": "nuxt-example@"
+  }
+}
