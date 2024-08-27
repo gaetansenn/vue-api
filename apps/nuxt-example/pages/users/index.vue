@@ -8,10 +8,8 @@
 </template>
 
 <script setup lang="ts">
-console.log('setup init')
 const { get } = useApiUsers()
 
-const users = await useAsyncData('users', () => get())
+const users = await get()
 
-console.log(users.data)
 </script>

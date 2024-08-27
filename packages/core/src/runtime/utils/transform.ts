@@ -6,10 +6,11 @@ import { IContext } from './context';
 
 export type MappingFunction = (args: { model: any, key?: string, newModel?: any, parentModel?: any, originModel?: any, context?: IContext }) => any;
 export type FilterFunction = (m: any) => boolean;
-export interface Field {
+export type Field = FieldObject | string
+export interface FieldObject {
   key?: string; // original key to read
   newKey?: string; // new key to rename to
-  fields?: Field[] | FieldFunction;
+  fields?: FieldObject[] | FieldFunction;
   mapping?: MappingFunction;
   filter?: FilterFunction;
   default?: any;
@@ -17,7 +18,7 @@ export interface Field {
 }
 
 
-export type FieldFunction = (context?: IContext) => Field[];
+export type FieldFunction = (context?: IContext) => FieldObject[];
 export type TransformFormat = 'camelCase';
 
 export interface ITransformOptions {
@@ -35,7 +36,7 @@ function formatKey (key: string, format?: TransformFormat) {
   }
 }
 
-function extractModel<T>(fields: ((Field | string)[] | FieldFunction) = [], model: any, context?: IContext, format?: TransformFormat, parentModel?: any, originModel?: any): T | null | undefined {
+function extractModel<T>(fields: (Field[] | FieldFunction) = [], model: any, context?: IContext, format?: TransformFormat, parentModel?: any, originModel?: any): T | null | undefined {
   if (isEmpty(model)) return null;
 
   // Inject originInput
@@ -46,7 +47,7 @@ function extractModel<T>(fields: ((Field | string)[] | FieldFunction) = [], mode
 
   if (typeof fields === 'function') fields = fields(context)
 
-  fields.forEach((field: Field | string) => {
+  fields.forEach((field: Field) => {
     const key: string = (isObject(field) ? field.newKey || field.key : field) as string
 
     // We normalize to camelCase if format is true
@@ -106,8 +107,8 @@ function extractModel<T>(fields: ((Field | string)[] | FieldFunction) = [], mode
   return newModel
 }
 
-export function useTransform<T>(model: MaybeRef<T>, fields: ((Field | string)[] | FieldFunction) = [], context?: IContext, options?: ITransformOptions) {
-  function getEmpty<T> (fields: (Field | string)[] = []) {
+export function useTransform<T>(model: MaybeRef<T>, fields: (Field[] | FieldFunction) = [], context?: IContext, options?: ITransformOptions) {
+  function getEmpty<T> (fields: Field[] = []) {
     const model: T = {} as T
 
     fields.forEach((field) => {

@@ -8,8 +8,6 @@ export async function generateComposables(args: { dir: string }) {
   // Define the directory that contains the composables
   const rootDir = resolve(process.cwd(), args.dir || ".", args.dir || 'api');
 
-  console.log(rootDir)
-
   // Define the exportable composables path for vue-api
   const composableExport = join(rootDir, '_composables_/index.ts')
 

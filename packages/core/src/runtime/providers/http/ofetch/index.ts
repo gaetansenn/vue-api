@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { useTransform } from '../../../utils/transform'
 import { IContext } from '../../../utils/context'
 
-export function useOfetchModel (options?: FetchOptions & { context: IContext }): IHttpModel<FetchOptions> {
+export function useOfetchModel (options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
   const $fetch = options ? ofetch.create(options) : ofetch
   const handleRequest: handleRequestFunction<FetchOptions, any> = (url, params) => {
     const context = { ...options?.context || {}, ...params.context }

@@ -1,8 +1,11 @@
-import vunix from '@vunix/nuxt'
-
 export default defineNuxtConfig({
+  // https://github.com/nuxt-themes/docus
   extends: '@nuxt-themes/docus',
+
   modules: [
-    vunix
+    // https://github.com/nuxt-modules/plausible
+    '@nuxtjs/plausible',
+    // https://github.com/nuxt/devtools
+    '@nuxt/devtools'
   ]
 })

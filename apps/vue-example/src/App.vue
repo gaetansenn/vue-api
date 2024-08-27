@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { useApiAuth } from 'api/_composables_';
 
 console.log('test is', useApiAuth())
 </script>

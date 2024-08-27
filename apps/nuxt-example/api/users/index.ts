@@ -1,4 +1,5 @@
-import { IRequestOptions, useOfetchModel, Field } from '@vue-api/core'
+import type { Field, IRequestOptions } from '@vue-api/core'
+import { useOfetchModel } from '@vue-api/core'
 
 export interface User {
   id: String;
@@ -6,24 +7,24 @@ export interface User {
   to?: String;
 }
 
-const USER_FIELD = ['id', 'name']
-
-const USER_FIELDS: Field[] = [...USER_FIELD, {
-  key: 'to',
-  mapping: ({ model }: { model: any }) => {
-    const router = useRouter()
-
-    return router.resolve('users')
-  }
-}]
-
 export default function () {
-  console.log('init users')
-  const $fetch = useOfetchModel()
+  const $fetch = useFetchModel({
+    baseURL: 'https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users'
+  })
+
+  const USER_FIELD = ['id', 'name']
+  const router = useRouter()
+
+  const USER_FIELDS: Field[] = [...USER_FIELD, {
+    key: 'to',
+    mapping: ({ model }: { model: any }) => {
+      return router.resolve({ name: 'users'}).href
+    }
+  }]
 
   return {
     findOne: async (userId: string, options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
-      return $fetch.get<User>(`https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users/${userId}`, {
+      return $fetch.get<User>(userId, {
         ...options,
         transform: {
           fields: USER_FIELD,
@@ -32,7 +33,7 @@ export default function () {
       })
     },
     get: async (options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
-      return $fetch.get<User[]>('https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users', {
+      return $fetch.get<User[]>({
         ...options,
         transform: {
           fields: USER_FIELDS,

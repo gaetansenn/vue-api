@@ -1,0 +1,28 @@
+{
+  "name": "docs-old",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:prepare": "nuxi prepare",
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate",
+    "preview": "nuxi preview",
+    "changelog": "standard-version"
+  },
+  "dependencies": {
+    "@vunix/nuxt": "*"
+  },
+  "devDependencies": {
+    "@nuxt-themes/docus": "^1.1.4",
+    "nuxt": "^3.2.0"
+  },
+  "standard-version": {
+    "skip": {
+      "bump": true,
+      "commit": true,
+      "tag": true
+    },
+    "tag-prefix": "docs@"
+  }
+}

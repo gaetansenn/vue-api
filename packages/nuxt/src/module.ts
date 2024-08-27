@@ -14,6 +14,10 @@ export default defineNuxtModule<ModuleOptions>({
   setup (options, nuxt) {
     const { resolve } = createResolver(nuxt.options.rootDir)
 
+    const test = createResolver(import.meta.url)
+
+    addImportsDir(test.resolve('runtime/composables'))
+
     generateComposables({ dir: resolve('api') })
 
     addImportsDir(resolve('api/_composables_'))
