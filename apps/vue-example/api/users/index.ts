@@ -1,3 +1,3 @@
 export default function () {
-  return 'test'
+  return 'test it'
 }

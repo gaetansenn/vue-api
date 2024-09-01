@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 
-console.log('test is', useApiAuth())
+console.log('test is', useApiUsers())
 </script>
 
 <template>

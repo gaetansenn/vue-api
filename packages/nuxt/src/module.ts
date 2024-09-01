@@ -2,12 +2,17 @@ import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
 import { generateComposables } from '@vue-api/core/dist/runtime/utils/export'
 
 // Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  path: string
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'my-module',
-    configKey: 'myModule'
+    name: 'vue-api/nuxt',
+    configKey: 'vueApiNuxt',
+    compatibility: {
+      nuxt: '>=3.0.0'
+    }
   },
   // Default configuration options of the Nuxt module
   defaults: {},

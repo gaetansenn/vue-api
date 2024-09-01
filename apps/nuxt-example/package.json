@@ -11,7 +11,7 @@
     "changelog": "standard-version"
   },
   "dependencies": {
-    "@vue-api/nuxt": "*"
+    "@vue-api/nuxt": "workspace:*"
   },
   "devDependencies": {
     "nuxt": "^3.13.0",

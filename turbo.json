@@ -1,9 +1,17 @@
 {
-  "$schema": "https://turborepo.org/schema.json",
-  "pipeline": {
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "dependsOn": ["^dev"],
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".nuxt/**", ".output/**"],
+      "cache": false
+    },
+    "postinstall": {
+      "dependsOn": ["dev:prepare"],
       "cache": false
     },
     "generate": {
@@ -13,10 +21,6 @@
     },
     "lint": {
       "outputs": []
-    },
-    "dev": {
-      "dependsOn": ["^dev"],
-      "cache": false
     },
     "test": {
       "cache": false
