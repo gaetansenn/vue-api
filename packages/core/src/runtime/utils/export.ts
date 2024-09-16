@@ -1,40 +1,40 @@
-import { promises as fs } from 'fs'
-import { resolve, relative, join } from 'path'
+import path from 'path'
 import glob from 'fast-glob'
-import { mkdir } from 'fs/promises'
-import _ from 'lodash'
+import fs from 'fs/promises'
+import { upperFirst } from 'lodash'
+import { camelCase } from 'lodash'
 
 export async function generateComposables(args: { dir: string }) {
   // Define the directory that contains the composables
-  const rootDir = resolve(process.cwd(), args.dir || ".", args.dir || 'api');
+  const rootDir = path.resolve(process.cwd(), args.dir || ".", args.dir || 'api');
 
   // Define the exportable composables path for vue-api
-  const composableExport = join(rootDir, '_composables_/index.ts')
+  const composableExport = path.join(rootDir, '_composables_/index.ts')
 
   // Create the '_composables_' directory if it doesn't exist
-  const composablesDir = join(rootDir, '_composables_');
+  const composablesDir = path.join(rootDir, '_composables_');
 
   try {
-    await mkdir(composablesDir);
+    await fs.mkdir(composablesDir);
   } catch (err) {
     //
   }
 
   // Use glob to find all .ts files in the directory
-  const files = glob.sync(join(rootDir, '**/*.ts'), {
-    ignore: [join(rootDir, 'index.ts'), composablesDir],
+  const files = glob.sync(path.join(rootDir, '**/*.ts'), {
+    ignore: [path.join(rootDir, 'index.ts'), composablesDir],
   })
 
   // Map the file names to export statements
   const exports = files.map(filePath => {
-    let relativePath = relative(rootDir, filePath).replace(/\\/g, '/')
+    let relativePath = path.relative(rootDir, filePath).replace(/\\/g, '/')
   
     // Remove .ts extension
     relativePath = relativePath.replace('.ts', '')
   
     // Check if it's index.ts and the only .ts file in the same directory
-    const directoryPath = resolve(filePath, '..')
-    const tsFilesInSameDirectory = glob.sync(join(directoryPath, '*.ts'))
+    const directoryPath = path.resolve(filePath, '..')
+    const tsFilesInSameDirectory = glob.sync(path.join(directoryPath, '*.ts'))
   
     if (tsFilesInSameDirectory.length === 1 && relativePath.endsWith('/index')) {
       // If there is only 'index.ts', remove '/index' from the relativePath
@@ -43,7 +43,7 @@ export async function generateComposables(args: { dir: string }) {
   
     // Split the path into segments, convert each segment to PascalCase and join them back together
     const pathSegments = relativePath.split('/');
-    const pascalCasedSegments = pathSegments.map(segment => _.upperFirst(_.camelCase(segment)));
+    const pascalCasedSegments = pathSegments.map(segment => upperFirst(camelCase(segment)));
     const formattedPath = 'useApi' + pascalCasedSegments.join('');
   
     return `export { default as ${formattedPath} } from '../${relativePath}'`

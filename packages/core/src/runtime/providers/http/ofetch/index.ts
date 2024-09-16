@@ -1,13 +1,25 @@
 import { ofetch } from 'ofetch'
 import type { FetchOptions } from 'ofetch'
-import { IHttpModel, handleRequestFunction } from '..'
-import get from 'lodash/get'
+import { IHttpModel, IRequestOptions, handleRequestFunction } from '..'
+import { get } from 'lodash'
 import { useTransform } from '../../../utils/transform'
 import { IContext } from '../../../utils/context'
 
-export function useOfetchModel (options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
+export function useOfetchModel(options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
   const $fetch = options ? ofetch.create(options) : ofetch
-  const handleRequest: handleRequestFunction<FetchOptions, any> = (url, params) => {
+
+  const handleRequest: handleRequestFunction<FetchOptions, any> = (urlOrOptions, _params?) => {
+    let url: string;
+    let params: any;
+
+    if (typeof urlOrOptions === 'string') {
+      url = urlOrOptions;
+      params = _params || {};
+    } else {
+      url = '';
+      params = urlOrOptions || {};
+    }
+
     const context = { ...options?.context || {}, ...params.context }
 
     return $fetch(url, {
@@ -27,38 +39,38 @@ export function useOfetchModel (options?: FetchOptions & { context?: IContext })
   }
 
   return {
-    get(url, options) {
-      return handleRequest(url, {
+    get(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'get',
-        ...options,
-      })
+        ...(typeof urlOrOptions === 'string' ? options : {}),
+      });
     },
-    patch (url, options) {
-      return handleRequest(url, {
+    patch(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'patch',
         ...options,
       })
     },
-    post (url, options) {
-      return handleRequest(url, {
+    post(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'post',
         ...options,
       })
     },
-    put (url, options) {
-      return handleRequest(url, {
+    put(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'put',
         ...options,
       })
     },
-    delete (url, options) {
-      return handleRequest(url, {
+    delete(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'delete',
         ...options,
       })
     },
-    head (url, options) {
-      return handleRequest(url, {
+    head(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
+      return handleRequest(urlOrOptions as any, {
         method: 'head',
         ...options,
       })

@@ -20,6 +20,7 @@
     "skipLibCheck": true,
   },
   "include": ["env.d.ts", "vite.config.*", "src/*.d.ts", "src/**/*.ts"],
+  "exclude": ["dist", "node_modules"],
   "references": [
     {
       "path": "./tsconfig.node.json"

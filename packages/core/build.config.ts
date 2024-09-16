@@ -5,18 +5,20 @@ import { join } from "path";
 export default defineBuildConfig({
   entries: [
     'src/index.ts',
+    'src/node.ts',
     { input: 'src/runtime/utils/', outDir: 'dist/runtime/utils', ext: 'mjs' },
     { input: 'src/runtime/bin/', outDir: 'dist/runtime/bin', ext: 'mjs' },
-
   ],
   // Generates .d.ts declaration file
   declaration: true,
   failOnWarn: false,
-  externals: [
-    'vue',
-    'lodash',
+  dependencies: [
     'fast-glob',
-    'ofetch'
+    'lodash'
+  ],
+  externals: [
+    'ofetch',
+    'vue'
   ],
   hooks: {
     "build:done": async () => {  

@@ -1,5 +1,5 @@
 import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
-import { generateComposables } from '@vue-api/core/dist/runtime/utils/export'
+import { generateComposables } from '@vue-api/core/node'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -9,7 +9,7 @@ export interface ModuleOptions {
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'vue-api/nuxt',
-    configKey: 'vueApiNuxt',
+    configKey: 'vueAPI',
     compatibility: {
       nuxt: '>=3.0.0'
     }
@@ -19,9 +19,9 @@ export default defineNuxtModule<ModuleOptions>({
   setup (options, nuxt) {
     const { resolve } = createResolver(nuxt.options.rootDir)
 
-    const test = createResolver(import.meta.url)
+    const { resolve: resolveModule } = createResolver(import.meta.url)
 
-    addImportsDir(test.resolve('runtime/composables'))
+    addImportsDir(resolveModule('runtime/composables'))
 
     generateComposables({ dir: resolve('api') })
 

@@ -3,7 +3,6 @@
   "name": "nuxt-example",
   "version": "1.0.0",
   "scripts": {
-    "postinstall": "nuxt prepare",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",

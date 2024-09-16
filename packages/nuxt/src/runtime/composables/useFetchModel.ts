@@ -24,7 +24,7 @@ export default function (options?: FetchOptions & { context?: IContext }): IHttp
       url = urlOrOptions;
       params = options;
     } else {
-      url = ''; // Utilisez une chaîne vide ou une valeur par défaut
+      url = '';
       params = urlOrOptions;
     }
 
