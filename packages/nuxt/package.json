@@ -18,11 +18,11 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxt prepare && nuxt-module-build build",
     "build": "nuxt-module-build build",
     "dev": "nuxt-module-build --stub",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare",
-    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "release": "npm run lint && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit"

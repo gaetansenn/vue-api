@@ -28,7 +28,7 @@
     "deploy": "turbo deploy",
     "changeset": "changeset",
     "bump": "changeset version",
-    "release": "turbo build --filter='./packages/*' lint test && changeset publish",
+    "release": "turbo build --filter='./packages/*' lint test && changeset version && changeset publish",
     "tag": "changeset tag",
     "removechangelogs": "find . -path ./node_modules -prune -o -name CHANGELOG.md -print | xargs rm"
   },

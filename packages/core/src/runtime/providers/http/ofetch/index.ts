@@ -1,7 +1,7 @@
 import { ofetch } from 'ofetch'
 import type { FetchOptions } from 'ofetch'
 import { IHttpModel, IRequestOptions, handleRequestFunction } from '..'
-import { get } from 'lodash'
+import { get } from 'lodash-es'
 import { useTransform } from '../../../utils/transform'
 import { IContext } from '../../../utils/context'
 
@@ -42,7 +42,7 @@ export function useOfetchModel(options?: FetchOptions & { context?: IContext }):
     get(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {
       return handleRequest(urlOrOptions as any, {
         method: 'get',
-        ...(typeof urlOrOptions === 'string' ? options : {}),
+        ...options,
       });
     },
     patch(urlOrOptions: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<FetchOptions, 'body'>>) {

@@ -14,7 +14,7 @@ export default defineBuildConfig({
   failOnWarn: false,
   dependencies: [
     'fast-glob',
-    'lodash'
+    'lodash-es'
   ],
   externals: [
     'ofetch',

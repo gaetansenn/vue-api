@@ -13,8 +13,6 @@ To use a provider, you need to import the appropriate model. For Ofetch, we use 
 When using the `oftech` provider with Nuxt, there's a special `useFetchModel` composable available. This composable automatically wraps the API calls with `useAsyncData` to handle SSR hydration. For more information on `useAsyncData`, refer to the [Nuxt documentation](https://nuxt.com/docs/api/composables/use-async-data).
 :::
 
-
-
 ## Example: Structuring API Functions
 
 When structuring API functions, we typically return the necessary functions for interacting with the API. In this example, we have `findOne` and `get` methods for retrieving user data.

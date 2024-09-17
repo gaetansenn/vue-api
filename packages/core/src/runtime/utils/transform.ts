@@ -1,7 +1,7 @@
 import type { MaybeRef } from 'vue';
-import { isEmpty } from 'lodash';
-import { isObject } from 'lodash';
-import { camelCase } from 'lodash';
+import { isEmpty } from 'lodash-es';
+import { isObject } from 'lodash-es';
+import { camelCase } from 'lodash-es';
 import { IContext } from './context';
 
 export type MappingFunction = (args: { model: any, key?: string, newModel?: any, parentModel?: any, originModel?: any, context?: IContext }) => any;
@@ -48,7 +48,7 @@ function extractModel<T>(fields: (Field[] | FieldFunction) = [], model: any, con
   if (typeof fields === 'function') fields = fields(context)
 
   fields.forEach((field: Field) => {
-    const key: string = (isObject(field) ? field.newKey || field.key : field) as string
+    const key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
 
     // We normalize to camelCase if format is true
     const normalizedKey = formatKey(key, format)
@@ -58,37 +58,37 @@ function extractModel<T>(fields: (Field[] | FieldFunction) = [], model: any, con
 
     // Check for empty value
     if (isObject(field)) {
-      if (model === null || isEmpty(model) || model[field.key as string] === null) {
-        if (!field.default) return
+      if (model === null || isEmpty(model) || model[(field as FieldObject).key as string] === null) {
+        if (!(field as FieldObject).default) return
 
-        newModel[normalizedKey] = (typeof field.default === 'function') ? field.default(context) : field.default
+        newModel[normalizedKey] = (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default
         return newModel[normalizedKey]
       }
-    } else if (model === null || isEmpty(model) || model[field] === null) return
+    } else if (model === null || isEmpty(model) || model[field as string] === null) return
 
     // Return value if only key access
-    if ((isObject(field) && (!field.mapping && !field.fields)) || !isObject(field)) {
-      newModel[normalizedKey] = model[isObject(field) ? field.key as string : field]
+    if ((isObject(field) && (!(field as FieldObject).mapping && !((field as FieldObject).fields))) || !isObject(field)) {
+      newModel[normalizedKey] = model[isObject(field) ? (field as FieldObject).key as string : field as string]
       return newModel[normalizedKey]
     }
 
     // Mapping method should always return a value (`return` will break the `forEach` method)
-    const mapMapping = () => (field.mapping  as MappingFunction)({ model, key: field.key, newModel, parentModel, originModel, context })
+    const mapMapping = () => ((field as FieldObject).mapping as MappingFunction)({ model, key: (field as FieldObject).key, newModel, parentModel, originModel, context })
     const mapFields = (sourceModel: any) => {
-      if (!sourceModel[field.key as string] && field.default) return field.default
-      if (Array.isArray(sourceModel[field.key as string]))
-        return sourceModel[field.key as string].filter((m: any) => {
-          if (field.filter) return field.filter(m)
+      if (!sourceModel[(field as FieldObject).key as string] && (field as FieldObject).default) return (field as FieldObject).default
+      if (Array.isArray(sourceModel[(field as FieldObject).key as string]))
+        return sourceModel[(field as FieldObject).key as string].filter((m: any) => {
+          if ((field as FieldObject).filter) return (field as FieldObject).filter(m)
           else return true
-        }).map((m: any) => extractModel(field.fields, m, context, format, sourceModel, originModel))
+        }).map((m: any) => extractModel((field as FieldObject).fields, m, context, format, sourceModel, originModel))
       else
-        return extractModel(field.fields, sourceModel[field.key as string], context, format, sourceModel, originModel)
+        return extractModel((field as FieldObject).fields, sourceModel[(field as FieldObject).key as string], context, format, sourceModel, originModel)
     }
 
     let result = false
 
     // Handle mapping
-    if (field.mapping) {
+    if ((field as FieldObject).mapping) {
       try {
         result = mapMapping()
       } catch (err) {
@@ -96,11 +96,11 @@ function extractModel<T>(fields: (Field[] | FieldFunction) = [], model: any, con
       }
     }
     // Handle fields and inject mapping result if present
-    if (field.fields) result = mapFields(result ? { [`${field.key}`]: result, ...parentModel } : model)
-    if (!field.mapping && !field.fields && field.default) result = model[field.key as string] || field.default
+    if ((field as FieldObject).fields) result = mapFields(result ? { [`${(field as FieldObject).key}`]: result, ...parentModel } : model)
+    if (!(field as FieldObject).mapping && !((field as FieldObject).fields) && (field as FieldObject).default) result = model[(field as FieldObject).key as string] || (field as FieldObject).default
 
     // Avoid adding mapping result when null
-    if (field.merge && result !== null) Object.assign(newModel, result)
+    if ((field as FieldObject).merge && result !== null) Object.assign(newModel, result)
     else newModel[normalizedKey] = result
   })
 

@@ -9,5 +9,8 @@
     "outDir": "./dist",
     "declaration": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "paths": {
+    "@vue-api/core": ["../core/src"]
+  }
 }
