@@ -11,12 +11,12 @@ export default defineNuxtModule<ModuleOptions>({
     name: 'vue-api/nuxt',
     configKey: 'vueAPI',
     compatibility: {
-      nuxt: '>=3.0.0'
-    }
+      nuxt: '>=3.0.0',
+    },
   },
   // Default configuration options of the Nuxt module
   defaults: {},
-  setup (options, nuxt) {
+  setup(options, nuxt) {
     const { resolve } = createResolver(nuxt.options.rootDir)
 
     const { resolve: resolveModule } = createResolver(import.meta.url)
@@ -26,5 +26,5 @@ export default defineNuxtModule<ModuleOptions>({
     generateComposables({ dir: resolve('api') })
 
     addImportsDir(resolve('api/_composables_'))
-  }
+  },
 })
