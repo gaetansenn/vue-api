@@ -30,6 +30,7 @@ export default defineConfig({
             items: [
               { text: 'Introduction', link: 'introduction' },
               { text: 'Structuring API Functions', link: 'structuring-api-functions' },
+              { text: 'Mapping data', link: 'mapping'}
             ],
             // collapsed: true
           }

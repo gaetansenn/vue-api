@@ -14,14 +14,14 @@ The general format for generated composable names is:
 
 Here are some examples to illustrate this convention:
 
-1. For a file `api/cms/blogs/article.ts`:
-   The generated composable name would be `useApiCmsBlogsArticle`
+1. For a file `api/cms/article.ts`:
+   The generated composable name would be `useApiCmsArticle`
 
-2. For a file `api/cms/blogs/index.ts`:
-   The generated composable name would be `useApiCmsBlogs`
+2. For a file `api/cms/index.ts`:
+   The generated composable name would be `useApiCmsIndex`
 
 3. In the case where there's only an `index.ts` file in a folder:
-   For `api/users/index.ts`, the generated composable name would be `useApiUsers`
+   For `api/cms/blogs/index.ts`, the generated composable name would be `useApiCms`
 
 This convention works recursively, so there's no limit to the depth of the folder structure.
 
