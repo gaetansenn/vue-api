@@ -18,7 +18,7 @@
     "dev:docs": "turbo dev --filter=docs",
     "build:nuxt-example": "turbo build --filter=nuxt-example",
     "build:vue-example": "turbo build --filter=vue-example",
-    "build:docs": "turbo generate --filter=docs",
+    "build:docs": "turbo build --filter=docs",
     "dev:vue-example": "turbo dev --filter=vue-example",
     "dev:nuxt-example": "turbo dev --filter=nuxt-example",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
