@@ -1,6 +1,8 @@
 {
   "name": "@vue-api/core",
   "version": "1.0.1",
+  "description": "Vue-api core module",
+  "repository": "gaetansenn/vue-api",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.mjs",
