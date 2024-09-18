@@ -1,30 +1,49 @@
-import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
+import { defineNuxtModule, createResolver } from '@nuxt/kit'
 import { generateComposables } from '@vue-api/core/node'
+import { name, version } from '../package.json'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
-  path: string
+  rootPath: string
+  ignorePatterns: string[]
+  ignorePrefixes: string[]
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'vue-api/nuxt',
-    configKey: 'vueAPI',
-    compatibility: {
-      nuxt: '>=3.0.0',
-    },
+    name,
+    version,
+    configKey: 'vueApi',
   },
   // Default configuration options of the Nuxt module
-  defaults: {},
+  defaults: {
+    rootPath: 'api',
+    ignorePatterns: [],
+    ignorePrefixes: ['_'],
+  },
   setup(options, nuxt) {
-    const { resolve } = createResolver(nuxt.options.rootDir)
+    const { resolve } = createResolver(import.meta.url)
 
-    const { resolve: resolveModule } = createResolver(import.meta.url)
+    // Generate composables on build
+    nuxt.hook('build:before', async () => {
+      const rootDir = nuxt.options.srcDir
+      const rootDirectoryPath = resolve(rootDir, options.rootPath)
 
-    addImportsDir(resolveModule('runtime/composables'))
+      await generateComposables({
+        dir: rootDirectoryPath,
+        ignorePatterns: options.ignorePatterns,
+        ignorePrefixes: options.ignorePrefixes,
+      })
+    })
 
-    generateComposables({ dir: resolve('api') })
+    // Add composables directory to auto-imports
+    nuxt.options.imports = nuxt.options.imports || {}
+    nuxt.options.imports.dirs = nuxt.options.imports.dirs || []
+    nuxt.options.imports.dirs.push(resolve(nuxt.options.srcDir, options.rootPath, '_composables_'))
 
-    addImportsDir(resolve('api/_composables_'))
+    // Add types
+    nuxt.hook('prepare:types', ({ references }) => {
+      references.push({ types: '@vue-api/core' })
+    })
   },
 })

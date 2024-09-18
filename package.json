@@ -9,8 +9,7 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*",
-    "docs/*"
+    "packages/*"
   ],
   "scripts": {
     "dev": "turbo dev",

@@ -3,7 +3,19 @@ import type { Plugin } from 'vite'
 import { generateComposables } from '@vue-api/core/node'
 import AutoImport from 'unplugin-auto-import/vite'
 
-export default async function vueApiPlugin(apiPath: string = 'api'): Promise<Plugin> {
+interface VueApiPluginOptions {
+  apiPath?: string;
+  ignorePatterns?: string[];
+  ignorePrefixes?: string[];
+}
+
+export default async function vueApiPlugin(options: VueApiPluginOptions = {}): Promise<Plugin> {
+  const { 
+    apiPath = 'api', 
+    ignorePatterns = [], 
+    ignorePrefixes = ['_']
+  } = options;
+
   return {
     name: 'vue-api-plugin',
     enforce: 'pre',
@@ -28,8 +40,12 @@ export default async function vueApiPlugin(apiPath: string = 'api'): Promise<Plu
       const rootDir = config.root || process.cwd();
       const apiDirectoryPath = path.resolve(rootDir, apiPath);
 
-      // Génération des composables
-      await generateComposables({ dir: apiDirectoryPath });
+      // Generate the composables
+      await generateComposables({ 
+        dir: apiDirectoryPath, 
+        ignorePatterns, 
+        ignorePrefixes 
+      });
     }
   };
 }

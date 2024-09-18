@@ -28,7 +28,9 @@ You can set the module options by using the `vueAPI` property in `nuxt.config` r
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   vueAPI: {
-    rootDir: 'api' // The directory where the API files are located
+    rootPath: 'api', // The directory where the API files are located
+    ignorePatterns: [], // The patterns to ignore when generating composables
+    ignorePrefixes: ['_'], // The prefixes to ignore when generating composables
   }
 })
 ```
@@ -79,7 +81,11 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
-    vueApiPlugin(),
+    vueApiPlugin({
+      rootPath: 'api', // The directory where the API files are located
+      ignorePatterns: [], // The patterns to ignore when generating composables
+      ignorePrefixes: ['_'], // The prefixes to ignore when generating composables  
+    }),
   ],
   resolve: {
     alias: {
