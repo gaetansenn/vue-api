@@ -147,8 +147,8 @@ importers:
         specifier: latest
         version: 5.6.2
       unbuild:
-        specifier: ^3.0.0-rc.7
-        version: 3.0.0-rc.7(typescript@5.6.2)(vue-tsc@2.1.6(typescript@5.6.2))
+        specifier: ^2.0.0
+        version: 2.0.0(typescript@5.6.2)(vue-tsc@2.1.6(typescript@5.6.2))
       vitest:
         specifier: ^0.28.5
         version: 0.28.5(jsdom@20.0.3)(terser@5.32.0)
@@ -1666,15 +1666,6 @@ packages:
   '@rollup/plugin-commonjs@25.0.8':
     resolution: {integrity: sha512-ZEZWTK5n6Qde0to4vS9Mr5x/0UZoqCxPVR9KRUjU4kA2sO7GEUn1fop0DAwpO6z0Nw/kJON9bDmSxdWxO/TT1A==}
     engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^2.68.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-
-  '@rollup/plugin-commonjs@26.0.1':
-    resolution: {integrity: sha512-UnsKoZK6/aGIH6AdkptXhNvhaqftcjq3zZdT+LY5Ftms6JR06nADcDsYp5hTU9E2lbJUEOhdlY5J4DNTneM+jQ==}
-    engines: {node: '>=16.0.0 || 14 >= 14.17'}
     peerDependencies:
       rollup: ^2.68.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
@@ -4147,10 +4138,6 @@ packages:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
 
-  jiti@2.0.0-beta.3:
-    resolution: {integrity: sha512-pmfRbVRs/7khFrSAYnSiJ8C0D5GvzkE4Ey2pAvUcJsw1ly/p+7ut27jbJrjY79BpAJQJ4gXYFtK6d1Aub+9baQ==}
-    hasBin: true
-
   js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
     engines: {node: '>=14'}
@@ -5968,15 +5955,6 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: ^5.1.6
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  unbuild@3.0.0-rc.7:
-    resolution: {integrity: sha512-LsxbMZGYC0ZwHb8sxqHzuBsMq+GS9g5ObWtnfCElpOz/yUT+raIoA6Ref53Ht4wLcjwraOxYMwVo1rHXpMpTzQ==}
-    hasBin: true
-    peerDependencies:
-      typescript: ^5.5.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -8215,17 +8193,6 @@ snapshots:
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
-      is-reference: 1.2.1
-      magic-string: 0.30.11
-    optionalDependencies:
-      rollup: 4.21.3
-
-  '@rollup/plugin-commonjs@26.0.1(rollup@4.21.3)':
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@4.21.3)
-      commondir: 1.0.1
-      estree-walker: 2.0.2
-      glob: 10.4.5
       is-reference: 1.2.1
       magic-string: 0.30.11
     optionalDependencies:
@@ -11256,8 +11223,6 @@ snapshots:
 
   jiti@1.21.6: {}
 
-  jiti@2.0.0-beta.3: {}
-
   js-beautify@1.15.1:
     dependencies:
       config-chain: 1.1.13
@@ -12608,14 +12573,6 @@ snapshots:
     optionalDependencies:
       '@babel/code-frame': 7.24.7
 
-  rollup-plugin-dts@6.1.1(rollup@4.21.3)(typescript@5.6.2):
-    dependencies:
-      magic-string: 0.30.11
-      rollup: 4.21.3
-      typescript: 5.6.2
-    optionalDependencies:
-      '@babel/code-frame': 7.24.7
-
   rollup-plugin-visualizer@5.12.0(rollup@4.21.3):
     dependencies:
       open: 8.4.2
@@ -13226,39 +13183,6 @@ snapshots:
       rollup: 3.29.4
       rollup-plugin-dts: 6.1.1(rollup@3.29.4)(typescript@5.6.2)
       scule: 1.3.0
-      untyped: 1.4.2
-    optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - sass
-      - supports-color
-      - vue-tsc
-
-  unbuild@3.0.0-rc.7(typescript@5.6.2)(vue-tsc@2.1.6(typescript@5.6.2)):
-    dependencies:
-      '@rollup/plugin-alias': 5.1.0(rollup@4.21.3)
-      '@rollup/plugin-commonjs': 26.0.1(rollup@4.21.3)
-      '@rollup/plugin-json': 6.1.0(rollup@4.21.3)
-      '@rollup/plugin-node-resolve': 15.2.3(rollup@4.21.3)
-      '@rollup/plugin-replace': 5.0.7(rollup@4.21.3)
-      '@rollup/pluginutils': 5.1.0(rollup@4.21.3)
-      citty: 0.1.6
-      consola: 3.2.3
-      defu: 6.1.4
-      esbuild: 0.23.1
-      fast-glob: 3.3.2
-      hookable: 5.5.3
-      jiti: 2.0.0-beta.3
-      magic-string: 0.30.11
-      mkdist: 1.5.9(typescript@5.6.2)(vue-tsc@2.1.6(typescript@5.6.2))
-      mlly: 1.7.1
-      pathe: 1.1.2
-      pkg-types: 1.2.0
-      pretty-bytes: 6.1.1
-      rollup: 4.21.3
-      rollup-plugin-dts: 6.1.1(rollup@4.21.3)(typescript@5.6.2)
-      scule: 1.3.0
-      ufo: 1.5.4
       untyped: 1.4.2
     optionalDependencies:
       typescript: 5.6.2

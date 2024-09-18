@@ -14,11 +14,12 @@ export interface IHttpModel<T> {
   head<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
 }
 
-export default function<M>(options?: FetchOptions & {
+export default function<M>(options: FetchOptions & {
   context?: IContext
-  useAsyncData: boolean
+  useAsyncData?: boolean
 }): IHttpModel<FetchOptions> {
-  const model = useOfetchModel(options)
+  const { useAsyncData: useAsyncDataOption = true, ..._options } = options
+  const model = useOfetchModel(_options)
 
   function parseUrlAndOptions<T>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): [string, IRequestOptions<T> | undefined] {
     if (typeof urlOrOptions === 'string') {
@@ -31,15 +32,11 @@ export default function<M>(options?: FetchOptions & {
     return (urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, _options?: IRequestOptions<Omit<FetchOptions, 'body'>>): AsyncData<M, NuxtError> | Promise<M> => {
       const [url, params] = parseUrlAndOptions(urlOrOptions, _options)
 
-      if (options?.useAsyncData) {
-        return useAsyncData<M, NuxtError>(
-          url,
-          () => model[methodName]<M>(url, params),
-        ) as AsyncData<M, NuxtError>
-      }
-      else {
-        return model[methodName]<M>(url, params)
-      }
+      if (!options.useAsyncData === false || useAsyncDataOption === false) return model[methodName]<M>(url, params)
+      else return useAsyncData<M, NuxtError>(
+        url,
+        () => model[methodName]<M>(url, params),
+      ) as AsyncData<M, NuxtError>
     }
   }
 

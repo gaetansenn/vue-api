@@ -1,8 +1,7 @@
 import path from 'path'
 import glob from 'fast-glob'
 import fs from 'fs/promises'
-import { upperFirst } from 'lodash-es'
-import { camelCase } from 'lodash-es'
+import { camelCase, upperFirst } from '.';
 
 export async function generateComposables(args: { dir: string }) {
   // Define the directory that contains the composables

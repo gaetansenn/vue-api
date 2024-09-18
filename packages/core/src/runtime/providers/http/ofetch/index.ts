@@ -1,9 +1,9 @@
 import { ofetch } from 'ofetch'
 import type { FetchOptions } from 'ofetch'
 import { IHttpModel, IRequestOptions, handleRequestFunction } from '..'
-import { get } from 'lodash-es'
 import { useTransform } from '../../../utils/transform'
 import { IContext } from '../../../utils/context'
+import { get } from '../../../utils'
 
 export function useOfetchModel(options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
   const $fetch = options ? ofetch.create(options) : ofetch
@@ -20,7 +20,7 @@ export function useOfetchModel(options?: FetchOptions & { context?: IContext }):
       params = urlOrOptions || {};
     }
 
-    const context = { ...options?.context || {}, ...params.context }
+    const context = { ...options?.context || {}, ...params?.context || {} }
 
     return $fetch(url, {
       ...params?.options,
@@ -31,8 +31,12 @@ export function useOfetchModel(options?: FetchOptions & { context?: IContext }):
       const fields = params.transform?.fields
 
       // Inject scope
-      if (params.transform.scope) response = get(response, params.transform?.scope)
+      if (params.transform?.scope) response = get(response, params.transform?.scope)
 
+      // Ignore transform if no fields provided
+      if (!fields) return response
+
+      // Transform response
       if (Array.isArray(response)) return response.map(item => useTransform(item as any, fields || [], context, params.transform).value)
       else return useTransform(response, fields, context, params.transform).value
     })

@@ -1,8 +1,6 @@
 import type { MaybeRef } from 'vue';
-import { isEmpty } from 'lodash-es';
-import { isObject } from 'lodash-es';
-import { camelCase } from 'lodash-es';
 import { IContext } from './context';
+import { camelCase, isEmpty, isObject } from '.';
 
 export type MappingFunction = (args: { model: any, key?: string, newModel?: any, parentModel?: any, originModel?: any, context?: IContext }) => any;
 export type FilterFunction = (m: any) => boolean;
