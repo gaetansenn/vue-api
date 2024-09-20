@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
 import { generateComposables } from '@vue-api/core/node'
 import { name, version } from '../package.json'
 
@@ -37,9 +37,9 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Add composables directory to auto-imports
-    nuxt.options.imports = nuxt.options.imports || {}
-    nuxt.options.imports.dirs = nuxt.options.imports.dirs || []
-    nuxt.options.imports.dirs.push(resolve(nuxt.options.srcDir, options.rootPath, '_composables_'))
+    addImportsDir(resolve(nuxt.options.srcDir, options.rootPath, '_composables_'))
+    // Add useFetchModel composable
+    addImportsDir(resolve(__dirname, 'runtime/composables'))
 
     // Add types
     nuxt.hook('prepare:types', ({ references }) => {
