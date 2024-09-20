@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 1.0.3
+
+### Patch Changes
+
+- Fix nuxt module composable
+
 ## 1.0.2
 
 ### Patch Changes
