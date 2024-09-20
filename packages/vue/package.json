@@ -39,6 +39,6 @@
     "unplugin-auto-import": "^0.18.2"
   },
   "dependencies": {
-    "@vue-api/core": "workspace:*"
+    "@vue-api/core": "*"
   }
 }
