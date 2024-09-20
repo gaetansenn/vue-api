@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.12.4",
-    "@vue-api/core": "*"
+    "@vue-api/core": "workspace:^"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.3.9",
