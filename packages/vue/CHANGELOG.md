@@ -1,5 +1,11 @@
 # @vue-api/vue
 
+## 1.0.3
+
+### Patch Changes
+
+- build: fix @vue-api/core resolver
+
 ## 1.0.2
 
 ### Patch Changes
