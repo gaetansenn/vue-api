@@ -44,5 +44,8 @@
   "packageManager": "pnpm@8.15.6",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@changesets/changelog-git": "^0.2.0"
   }
 }
