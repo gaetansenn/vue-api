@@ -41,6 +41,9 @@ export default defineNuxtModule<ModuleOptions>({
     // Add useFetchModel composable
     addImportsDir(resolve(__dirname, 'runtime/composables'))
 
+    // Transpile @vue-api/core
+    nuxt.options.build.transpile.push('@vue-api/core')
+
     // Add types
     nuxt.hook('prepare:types', ({ references }) => {
       references.push({ types: '@vue-api/core' })
