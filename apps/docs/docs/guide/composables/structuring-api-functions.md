@@ -1,6 +1,6 @@
 ## Structuring API Functions
 
-When creating functions within the `/api` folder, it's important to understand how to use the Vue API module correctly. This guide will walk you through the process of structuring your API functions.
+When creating functions within the `api` folder, it's important to understand how to use the Vue API module correctly. This guide will walk you through the process of structuring your API functions.
 
 ## Choosing a Provider
 
@@ -21,12 +21,12 @@ You have the flexibility to name these methods as you see fit, but the idea is t
 ::: code-group
 ```ts [typing.ts]
 export interface IHttpModel<T> {
-  get<M>(url: string, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  post<M>(url: string, body?: any, options?: IRequestOptions<T>): Promise<M>;
-  put<M>(url: string, body?: any, options?: IRequestOptions<T>): Promise<M>;
-  patch<M>(url: string, body?: any, options?: IRequestOptions<T>): Promise<M>;
-  delete<M>(url: string, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  head<M>(url: string, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
+  get<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
+  post<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
+  put<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
+  patch<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
+  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
+  head<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
 }
 ```
 :::
@@ -60,18 +60,16 @@ export default function () {
   }]
 
   return {
-    findOne: async (userId: string, options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
+    findOne: async (userId: string) => {
       return $fetch.get<User>(userId, {
-        ...options,
         transform: {
           fields: USER_FIELD,
           context: {}
         }
       })
     },
-    get: async (options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
+    get: async () => {
       return $fetch.get<User[]>({
-        ...options,
         transform: {
           fields: USER_FIELDS,
           context: {}

@@ -7,7 +7,7 @@ import { get } from '../../../utils'
 
 export function useOfetchModel(options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
   const $fetch = options ? ofetch.create(options) : ofetch
-
+  
   const handleRequest: handleRequestFunction<FetchOptions, any> = (urlOrOptions, _params?) => {
     let url: string;
     let params: any;

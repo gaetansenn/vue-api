@@ -12,7 +12,7 @@ hero:
       link: /guide/getting-started/installation
     - theme: alt
       text: API Examples
-      link: /guide/api-examples
+      link: /examples
 
 features:
   - title: Organized API Management

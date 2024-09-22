@@ -101,7 +101,7 @@ export default defineConfig({
 })
 ```
 
-By default, this plugin searches for API files in the `api` folder. However, you can customize this path by passing an `apiPath` parameter to the plugin.
+By default, this plugin searches for API files in the `api` folder. However, you can customize this path by passing an `rootPath` parameter to the plugin.
 
 
 

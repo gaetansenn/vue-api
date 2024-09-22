@@ -32,8 +32,8 @@ A CLI tool `vue-api` is provided by the `@vue-api/core` package to generate the 
 1. Creates a `_composables_` folder in the root directory (default `api`).
 2. Generates an `index.ts` file in this folder, which exports all the composables.
 
-This `index.ts` file is then used:
-- In Nuxt, via the Nuxt module
+This `index.ts` file is then injected into the project:
+- In Nuxt, via the Nuxt module `addImportsDir`
 - In Vue, via the Vue Vite plugin using the `unplugin-auto-import/vite` module to inject the composables in the project.
 
 This allows for a centralized declaration of all generated composables, making it easier to import and use them in your application.
