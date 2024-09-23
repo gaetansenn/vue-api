@@ -24,6 +24,8 @@ export default function<M, UseAsyncData extends boolean = true>(options: FetchOp
   const { useAsyncData: useAsyncDataOption = true, ..._options } = options
   const model = useOfetchModel(_options)
 
+  type RequestOptions = IRequestOptions<Omit<FetchOptions, 'body'>> & UseAsyncData
+
   function parseUrlAndOptions<T>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): [string, IRequestOptions<T> | undefined] {
     if (typeof urlOrOptions === 'string') {
       return [urlOrOptions, options]
@@ -32,10 +34,10 @@ export default function<M, UseAsyncData extends boolean = true>(options: FetchOp
   }
 
   function createMethod<M>(methodName: HttpMethod) {
-    return (urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, _options?: IRequestOptions<Omit<FetchOptions, 'body'>>): ReturnType<M, UseAsyncData> => {
+    return (urlOrOptions?: string | RequestOptions, _options?: RequestOptions): ReturnType<M, UseAsyncData> => {
       const [url, params] = parseUrlAndOptions(urlOrOptions, _options)
 
-      if (!options.useAsyncData === false || useAsyncDataOption === false) {
+      if (params?.useAsyncData === false || useAsyncDataOption === false) {
         return model[methodName]<M>(url, params) as ReturnType<M, UseAsyncData>
       }
       else {
