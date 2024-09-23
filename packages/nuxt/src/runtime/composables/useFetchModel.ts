@@ -5,19 +5,22 @@ import { useAsyncData, type AsyncData, type NuxtError } from 'nuxt/app'
 
 type HttpMethod = 'get' | 'patch' | 'post' | 'put' | 'delete' | 'head'
 
-export interface IHttpModel<T> {
-  get<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
-  patch<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
-  post<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
-  put<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
-  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
-  head<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): AsyncData<M, NuxtError> | Promise<M>
+// Type conditionnel pour le retour de la méthode
+type ReturnType<M, UseAsyncData extends boolean> = UseAsyncData extends true ? AsyncData<M, NuxtError> : Promise<M>
+
+export interface IHttpModel<T, UseAsyncData extends boolean> {
+  get<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+  patch<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+  post<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+  put<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+  head<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
 }
 
-export default function<M>(options: FetchOptions & {
+export default function<M, UseAsyncData extends boolean = true>(options: FetchOptions & {
   context?: IContext
-  useAsyncData?: boolean
-}): IHttpModel<FetchOptions> {
+  useAsyncData?: UseAsyncData
+}): IHttpModel<FetchOptions, UseAsyncData> {
   const { useAsyncData: useAsyncDataOption = true, ..._options } = options
   const model = useOfetchModel(_options)
 
@@ -29,14 +32,18 @@ export default function<M>(options: FetchOptions & {
   }
 
   function createMethod<M>(methodName: HttpMethod) {
-    return (urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, _options?: IRequestOptions<Omit<FetchOptions, 'body'>>): AsyncData<M, NuxtError> | Promise<M> => {
+    return (urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, _options?: IRequestOptions<Omit<FetchOptions, 'body'>>): ReturnType<M, UseAsyncData> => {
       const [url, params] = parseUrlAndOptions(urlOrOptions, _options)
 
-      if (!options.useAsyncData === false || useAsyncDataOption === false) return model[methodName]<M>(url, params)
-      else return useAsyncData<M, NuxtError>(
-        url,
-        () => model[methodName]<M>(url, params),
-      ) as AsyncData<M, NuxtError>
+      if (!options.useAsyncData === false || useAsyncDataOption === false) {
+        return model[methodName]<M>(url, params) as ReturnType<M, UseAsyncData>
+      }
+      else {
+        return useAsyncData<M, NuxtError>(
+          url,
+          () => model[methodName]<M>(url, params),
+        ) as ReturnType<M, UseAsyncData>
+      }
     }
   }
 
@@ -47,5 +54,5 @@ export default function<M>(options: FetchOptions & {
     put: createMethod<M>('put'),
     delete: createMethod<M>('delete'),
     head: createMethod<M>('head'),
-  } as IHttpModel<FetchOptions>
+  } as IHttpModel<FetchOptions, UseAsyncData>
 }
