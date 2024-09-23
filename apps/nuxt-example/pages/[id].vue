@@ -8,5 +8,5 @@
 const { params } = useRoute()
 const { findOne } = useApiUsers()
 
-const user = await useAsyncData(() => findOne(params.id as string))
+const user = await findOne(params.id as string)
 </script>

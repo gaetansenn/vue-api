@@ -1,5 +1,4 @@
 import type { Field, IRequestOptions } from '@vue-api/core'
-import { useOfetchModel } from '@vue-api/core'
 
 export interface User {
   id: String;
@@ -13,12 +12,10 @@ export default function () {
   })
 
   const USER_FIELD = ['id', 'name']
-  const router = useRouter()
-
   const USER_FIELDS: Field[] = [...USER_FIELD, {
     key: 'to',
     mapping: ({ model }: { model: any }) => {
-      return router.resolve({ name: 'users'}).href
+      return { name: 'id', params: { id: model.id } }
     }
   }]
 

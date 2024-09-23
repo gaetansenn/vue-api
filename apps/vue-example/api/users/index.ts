@@ -9,8 +9,6 @@ export default function () {
     baseURL: 'https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users'
   })
 
-  console.log('$fetch is', $fetch)
-
   const USER_FIELD = ['id', 'name']
 
   const USER_FIELDS: typeof Field[] = [...USER_FIELD]
