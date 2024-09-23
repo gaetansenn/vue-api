@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 1.0.7
+
+### Patch Changes
+
+- feat(nuxt): handle return type according to asyncData activation
+
 ## 1.0.4
 
 ### Patch Changes
