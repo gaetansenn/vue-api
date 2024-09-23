@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 1.0.8
+
+### Patch Changes
+
+- fix useAsyncData option
+
 ## 1.0.7
 
 ### Patch Changes
