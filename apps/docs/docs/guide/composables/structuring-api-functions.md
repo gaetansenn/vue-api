@@ -50,26 +50,26 @@ export default function () {
   })
 
   const USER_FIELD = ['id', 'name']
-  const router = useRouter()
-
   const USER_FIELDS: Field[] = [...USER_FIELD, {
     key: 'to',
     mapping: ({ model }: { model: any }) => {
-      return router.resolve({ name: 'users'}).href
+      return { name: 'id', params: { id: model.id } }
     }
   }]
 
   return {
-    findOne: async (userId: string) => {
+    findOne: async (userId: string, options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
       return $fetch.get<User>(userId, {
+        ...options,
         transform: {
           fields: USER_FIELD,
           context: {}
         }
       })
     },
-    get: async () => {
+    get: async (options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
       return $fetch.get<User[]>({
+        ...options,
         transform: {
           fields: USER_FIELDS,
           context: {}
