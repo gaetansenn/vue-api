@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+### Patch Changes
+
+- fix: fix composable generation path
+
 ## 1.0.3
 
 ### Patch Changes

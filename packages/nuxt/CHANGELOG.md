@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- fix: fix composable generation path
+- Updated dependencies
+  - @vue-api/core@1.0.4
+
+## 1.0.11
+
+### Patch Changes
+
 - build: try bump core for nuxt package
 
 ## 1.0.10
