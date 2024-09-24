@@ -51,7 +51,7 @@ export async function generateComposables(args: {
       const pascalCasedSegments = pathSegments.map(segment => upperFirst(camelCase(segment)));
       const formattedPath = 'useApi' + pascalCasedSegments.join('');
   
-      return `export { default as ${formattedPath} } from ${path.posix.join('..', relativePath)}`
+      return `export { default as ${formattedPath} } from '${path.posix.join('..', relativePath)}'`
     })
 
   const content = exports.join('\n')
