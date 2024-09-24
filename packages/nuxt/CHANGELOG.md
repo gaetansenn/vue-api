@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 1.0.11
+
+### Patch Changes
+
+- build: try bump core for nuxt package
+
 ## 1.0.10
 
 ### Patch Changes
