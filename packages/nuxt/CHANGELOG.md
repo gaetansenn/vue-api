@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 1.0.12
+
+### Patch Changes
+
+- fix: fix composable hook stage
+
 ## 1.0.11
 
 ### Patch Changes
