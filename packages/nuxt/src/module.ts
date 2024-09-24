@@ -25,7 +25,7 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve } = createResolver(import.meta.url)
 
     // Generate composables on build
-    nuxt.hook('build:before', async () => {
+    nuxt.hook('ready', async () => {
       const rootDir = nuxt.options.srcDir
       const rootDirectoryPath = resolve(rootDir, options.rootPath)
 
