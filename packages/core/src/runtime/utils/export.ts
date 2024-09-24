@@ -1,6 +1,8 @@
 import path from 'path'
 import fs from 'fs/promises'
 import glob from 'fast-glob'
+import { convertPathToPattern } from 'fast-glob/out/utils/path';
+
 import { camelCase, upperFirst } from '.';
 
 export async function generateComposables(args: { 
@@ -10,8 +12,8 @@ export async function generateComposables(args: {
 }) {
   const { dir, ignorePatterns = [], ignorePrefixes = ['_'] } = args;
   const rootDir = path.resolve(process.cwd(), dir || ".", dir || 'api');
-  const composableExport = path.posix.join(rootDir, '_composables_/index.ts')
-  const composablesDir = path.posix.join(rootDir, '_composables_');
+  const composableExport = path.join(rootDir, '_composables_/index.ts')
+  const composablesDir = path.join(rootDir, '_composables_');
 
   try {
     await fs.mkdir(composablesDir);
@@ -19,41 +21,57 @@ export async function generateComposables(args: {
     // Directory already exists, ignore error
   }
 
-  const files = glob.sync(path.posix.join(rootDir, '**/*.ts'), {
+  // Convert paths to patterns
+  const normalizedRootDir = convertPathToPattern(rootDir);
+  const normalizedComposableExport = convertPathToPattern(composableExport);
+  const normalizedComposablesDir = convertPathToPattern(composablesDir);
+
+  const files = glob.sync(`${normalizedRootDir}/**/*.ts`, {
     ignore: [
-      path.posix.join(rootDir, 'index.ts'),
-      composablesDir,
-      ...ignorePatterns.map(pattern => path.posix.join(rootDir, pattern))
+      `${normalizedRootDir}/index.ts`,
+      normalizedComposablesDir,
+      ...ignorePatterns.map(pattern => `${normalizedRootDir}/${convertPathToPattern(pattern)}`)
     ],
-  })
+  });
+
+  if (files.length === 0) {
+    console.log('No files found. Please check the directory and patterns.');
+    return;
+  }
 
   const exports = files
     .filter(filePath => {
-      const relativePath = path.posix.relative(rootDir, filePath);
-      const segments = relativePath.split(path.posix.sep);
+      const relativePath = path.relative(rootDir, filePath);
+      const segments = relativePath.split(path.sep);
       // Check if any segment starts with an ignored prefix
       return !segments.some(segment => 
         ignorePrefixes.some(prefix => segment.startsWith(prefix))
       );
     })
     .map(filePath => {
-      let relativePath = path.posix.relative(rootDir, filePath).replace(/\\/g, '/')
-      relativePath = relativePath.replace('/index', '').replace('.ts', '')
-  
-      const directoryPath = path.posix.resolve(filePath, '..')
+      let relativePath = path.relative(rootDir, filePath).replace(/\\/g, '/')
+      relativePath = relativePath.replace('.ts', '')
+
+      const directoryPath = path.posix.dirname(filePath);
       const tsFilesInSameDirectory = glob.sync(path.posix.join(directoryPath, '*.ts'))
-  
+
       if (tsFilesInSameDirectory.length === 1 && relativePath.endsWith('/index')) {
         relativePath = relativePath.replace('/index', '')
       }
-  
+
       const pathSegments = relativePath.split('/');
       const pascalCasedSegments = pathSegments.map(segment => upperFirst(camelCase(segment)));
       const formattedPath = 'useApi' + pascalCasedSegments.join('');
-  
-      return `export { default as ${formattedPath} } from '${path.posix.join('..', relativePath)}'`
-    })
 
-  const content = exports.join('\n')
-  await fs.writeFile(composableExport, content, 'utf8')
+      const exportStatement = `export { default as ${formattedPath} } from '../${relativePath}'`;
+      return exportStatement;
+    });
+
+  const content = exports.join('\n');
+  
+  try {
+    await fs.writeFile(normalizedComposableExport, content, 'utf8');
+  } catch (err) {
+    console.log(`Error writing file: ${err}`);
+  }
 }
