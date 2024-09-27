@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+### Patch Changes
+
+- fix: fix window glob path composable generation
+
 ## 1.0.4
 
 ### Patch Changes
