@@ -43,8 +43,28 @@ This allows for a centralized declaration of all generated composables, making i
 
 Now that you understand how composables are automatically generated based on your API structure, let's explore how to effectively use these composables in your Vue or Nuxt application. The next section will guide you through the process of structuring your API functions to work seamlessly with these generated composables.
 
+## TypeScript Declaration Files
 
+You can add TypeScript declaration files (*.d.ts) to your API directory without affecting the composable generation process. These declaration files are automatically ignored during the composable generation, allowing you to define types and interfaces for your API without interfering with the auto-generated composables.
 
+This feature is particularly useful for:
+- Defining shared types and interfaces for your API
+- Enhancing type safety in your API implementations
 
+For example, you can create a file like `api/types.d.ts` to declare shared types:
 
+```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
 
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message: string;
+}
+```
+
+These types can then be used in your API implementation files without being included in the generated composables.

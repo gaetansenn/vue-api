@@ -29,6 +29,7 @@ export async function generateComposables(args: {
   const files = glob.sync(`${normalizedRootDir}/**/*.ts`, {
     ignore: [
       `${normalizedRootDir}/index.ts`,
+      `${normalizedRootDir}/**/*.d.ts`,
       normalizedComposablesDir,
       ...ignorePatterns.map(pattern => `${normalizedRootDir}/${convertPathToPattern(pattern)}`)
     ],
