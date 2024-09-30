@@ -8,6 +8,18 @@ export function get(obj: any, path: string | string[], defaultValue?: any): any 
   return result === undefined || result === obj ? defaultValue : result;
 }
 
+export function set(obj: any, path: string, value: any): void {
+  const keys = path.split('.');
+  let current = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (current[keys[i]] === undefined) {
+      current[keys[i]] = {};
+    }
+    current = current[keys[i]];
+  }
+  current[keys[keys.length - 1]] = value;
+}
+
 export function upperFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }

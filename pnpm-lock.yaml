@@ -44,6 +44,9 @@ importers:
 
   apps/nuxt-example:
     dependencies:
+      '@vue-api/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@vue-api/nuxt':
         specifier: workspace:*
         version: link:../../packages/nuxt

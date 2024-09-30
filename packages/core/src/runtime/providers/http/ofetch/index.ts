@@ -37,8 +37,8 @@ export function useOfetchModel(options?: FetchOptions & { context?: IContext }):
       if (!fields) return response
 
       // Transform response
-      if (Array.isArray(response)) return response.map(item => useTransform(item as any, fields || [], context, params.transform).value)
-      else return useTransform(response, fields, context, params.transform).value
+      if (Array.isArray(response)) return response.map(item => useTransform(item as any, fields || [], { ...params, context }).value)
+      else return useTransform(response, fields, { ...params, context }).value
     })
   }
 
