@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7
+
+### Patch Changes
+
+- feat(core): implement automatic scope inheritance for nested fields
+
 ## 1.0.6
 
 ### Patch Changes
