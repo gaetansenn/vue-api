@@ -50,7 +50,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
     // Check for empty value and handle default value
     if (isObject(field)) {
-      if (model === null || isEmpty(model) || get(model, (field as FieldObject).key) === null || get(model, (field as FieldObject).key) === undefined) {
+      if (model === null || isEmpty(model) || (!(field as FieldObject).mapping) && (get(model, (field as FieldObject).key) === null || get(model, (field as FieldObject).key) === undefined)) {
         if (!(field as FieldObject).default) return
 
         set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
@@ -80,10 +80,10 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
     // Handle mapping
     if ((field as FieldObject).mapping) {
       try {
-    // Mapping method should always return a value (`return` will break the `forEach` method)
+        // Mapping method should always return a value (`return` will break the `forEach` method)
         result = ((field as FieldObject).mapping as MappingFunction)({ model: (field as FieldObject).scope ? get(originModel, (field as FieldObject).scope) : model, key: (field as FieldObject).key, newModel, parentModel, originModel, context })
       } catch (err) {
-        console.log('error of mapping', err)
+        console.error('error of mapping', err)
       }
     }
     // Handle fields and inject mapping result if present
@@ -161,8 +161,6 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
   const unrefModel = unref(model);
   const expandedFields = expandWildcardFields(fields, unrefModel);
 
-  console.dir(expandedFields, { depth: null })
-
   function getEmpty(): Partial<T> {
     const emptyModel: Partial<T> = {};
 
@@ -175,12 +173,10 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
           const value = defaultValue !== undefined ? defaultValue : null;
           
           if (subFields) {
-            // Si le champ a des sous-champs, créer un objet vide et traiter récursivement
             const subModel = {};
             set(currentModel, key, subModel);
             processFields(subFields, subModel);
           } else {
-            // Sinon, définir la valeur directement
             set(currentModel, key, value);
           }
         }

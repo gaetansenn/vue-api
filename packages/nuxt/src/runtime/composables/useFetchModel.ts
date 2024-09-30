@@ -5,7 +5,6 @@ import { useAsyncData, type AsyncData, type NuxtError } from 'nuxt/app'
 
 type HttpMethod = 'get' | 'patch' | 'post' | 'put' | 'delete' | 'head'
 
-// Type conditionnel pour le retour de la méthode
 type ReturnType<M, UseAsyncData extends boolean> = UseAsyncData extends true ? AsyncData<M, NuxtError> : Promise<M>
 
 export interface IHttpModel<T, UseAsyncData extends boolean> {
@@ -24,9 +23,9 @@ export default function<M, UseAsyncData extends boolean = true>(options: FetchOp
   const { useAsyncData: useAsyncDataOption = true, ..._options } = options
   const model = useOfetchModel(_options)
 
-  type RequestOptions = IRequestOptions<Omit<FetchOptions, 'body'>> & UseAsyncData
+  type RequestOptions = IRequestOptions<Omit<FetchOptions, 'body'>> & { useAsyncData: UseAsyncData }
 
-  function parseUrlAndOptions<T>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): [string, IRequestOptions<T> | undefined] {
+  function parseUrlAndOptions(urlOrOptions?: string | RequestOptions, options?: RequestOptions): [string, RequestOptions | undefined] {
     if (typeof urlOrOptions === 'string') {
       return [urlOrOptions, options]
     }
