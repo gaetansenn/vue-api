@@ -10,10 +10,11 @@
     "changelog": "standard-version"
   },
   "dependencies": {
-    "@vue-api/nuxt": "workspace:*",
-    "@vue-api/core": "workspace:*"
+    "@vue-api/core": "workspace:*",
+    "@vue-api/nuxt": "workspace:*"
   },
   "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.1",
     "nuxt": "^3.13.0",
     "vue": "latest"
   },
