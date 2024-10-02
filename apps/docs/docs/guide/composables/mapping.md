@@ -18,23 +18,27 @@ A `Field` can be either a simple string or a `FieldObject`
 export interface FieldObject {
   key: string;
   newKey?: string;
+  path?: string;
   fields?: Field[];
   mapping?: MappingFunction;
   filter?: FilterFunction;
   default?: any;
   merge?: boolean;
   scope?: string;
+  omit?: string[];
 }
 ```
 
 - `key`: The original key to read from the source object.
 - `newKey`: The new key if you need to change the original one.
+- `path`: A custom path to retrieve the value from the source object, allowing for more flexible data access.
 - `fields`: An array of `Field` for recursive mapping of nested objects or arrays.
 - `mapping`: A custom transformation function.
 - `filter`: A function to filter array elements.
 - `default`: A default value or function to use when the source value is empty.
 - `merge`: A boolean indicating whether to merge the result into the parent object.
 - `scope`: Specifies a different part of the model to use for this specific field's mapping.
+- `omit`: An array of fields to exclude from the transformation process.
 
 
 ### MappingFunction
@@ -336,6 +340,103 @@ const { value } = useTransform(model, fields);
 
 In this example, the `scope` property in the `budget.allocated` field ensures that the `model` passed to the mapping function is the specific department object, allowing direct access to the `allocated` property.
 
+## Path
+
+The `path` property in a `FieldObject` allows you to specify a custom path to retrieve the value from the source object. This is particularly useful when you need to access deeply nested properties or when the structure of your source object doesn't match your desired output structure.
+
+### Example of using path
+
+```ts
+const model = {
+  user: {
+    personalInfo: {
+      name: {
+        first: 'John',
+        last: 'Doe'
+      },
+      contact: {
+        email: 'john.doe@example.com'
+      }
+    }
+  }
+};
+
+const fields = [
+  {
+    key: 'fullName',
+    path: 'user.personalInfo.name',
+    mapping: ({ model }) => `${model.first} ${model.last}`
+  },
+  {
+    key: 'email',
+    path: 'user.personalInfo.contact.email'
+  }
+];
+
+const { value } = useTransform(model, fields);
+```
+
+Output:
+```json
+{
+  "fullName": "John Doe",
+  "email": "john.doe@example.com"
+}
+```
+
+In this example:
+- The `path` property is used to directly access nested properties in the source object.
+- For `fullName`, we use both `path` and `mapping` to create a custom output.
+- For `email`, we use `path` to directly retrieve the deeply nested email value.
+
+The `path` property provides a flexible way to access data within complex object structures, allowing you to flatten nested objects or reorganize your data structure during the transformation process.
+
+## Omitting Fields
+
+When using wildcards to include multiple fields, you may want to exclude specific fields. The `omit` property allows you to specify fields that should be ignored during the transformation process.
+
+### Example of using omit
+
+```ts
+const model = {
+  name: 'John Doe',
+  email: 'john@example.com',
+  password: 'secret123',
+  preferences: {
+    theme: 'dark',
+    notifications: true,
+    privateInfo: 'sensitive data'
+  }
+};
+
+const fields = [
+  {
+    key: '*',
+    omit: ['password']
+  },
+  {
+    key: 'preferences.*',
+    omit: ['privateInfo']
+  }
+];
+
+const { value } = useTransform(model, fields);
+```
+
+Output:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "preferences": {
+    "theme": "dark",
+    "notifications": true
+  }
+}
+```
+
+In this example, the `password` field is omitted from the top-level object, and `privateInfo` is omitted from the `preferences` object, even though we're using wildcards to include all other fields.
+
 ## Examples
 
 Here are some examples to illustrate different use cases of the mapping system:
@@ -494,26 +595,37 @@ These examples demonstrate the flexibility and power of the mapping system, allo
 
 ## Transformation Process
 
-1. The system first processes any wildcard fields in the `fields` array.
-   - Wildcard fields (e.g., `*` or `level.*`) are identified and applied to the corresponding levels of the source object.
-   - This creates a base transformed object that includes all wildcard-matched properties.
+1. The system first expands any wildcard fields in the `fields` array using the `expandWildcardFields` function.
 
-2. The system then iterates through each non-wildcard field in the `fields` array.
+2. For each field in the expanded fields array, the system applies the following rules in order:
 
-3. For each field, it applies the following rules:
-   - If a `mapping` function is provided, it's called to transform the value.
-   - If `fields` are specified for an object or array, it recursively applies the transformation.
-   - If a `filter` is provided for array fields, it's applied to each element.
-   - The `default` value is used when the source value is empty or null.
-   - If a `newKey` is specified, the transformed value is assigned to this new key.
+   a. If the field is a simple string (key), it directly sets the value from the source model to the new model.
 
-4. Key formatting (e.g., camelCase) is applied if specified in the options.
+   b. If the field is an object (FieldObject):
+      - It checks if the source model is null or empty, or if the value for the field's key is null or undefined.
+      - If so, and a `default` value is specified, it uses the default value.
+      - If not, it proceeds with the following steps:
 
-5. The transformed values are assembled into the final object, potentially overwriting or adding to the wildcard-matched properties.
+   c. If a `path` is specified, it retrieves the value from the original source object using this custom path.
 
-6. The resulting transformed object is returned.
+   d. If a `mapping` function is provided, it's called to transform the value.
+      - The mapping function receives the model (or scoped model if `scope` is specified), key, new model, parent model, original model, and context.
 
-This process ensures that wildcard mappings are applied first as a base, and then specific field transformations can override or add to this base. This allows for both broad inclusion of properties and specific customization where needed.
+   e. If `fields` are specified for an object or array:
+      - For arrays, it applies any specified `filter` function to each element.
+      - It recursively applies the transformation process to each element or nested object.
+
+   f. If no `mapping` or `fields` are specified, but a `default` value exists, it uses the source value or the default if the source is empty.
+
+   g. If the result of these operations is not undefined:
+      - If `merge` is true, it merges the result into the new model.
+      - Otherwise, it sets the result in the new model using the specified key (or `newKey` if provided).
+
+3. Throughout this process, key formatting (e.g., camelCase) is applied if specified in the options.
+
+4. The resulting transformed object is returned.
+
+This process allows for flexible data access and transformation, handling nested structures, arrays, and various transformation scenarios. It ensures that wildcard expansions, default values, custom paths, mappings, and nested transformations are all applied in a logical order.
 
 ## Advanced Features
 

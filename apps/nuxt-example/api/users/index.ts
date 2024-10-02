@@ -1,8 +1,10 @@
 import type { Field, IRequestOptions } from '@vue-api/core'
+import { useTransform } from '@vue-api/core'
 
 interface Project {
   name: string;
   status: string;
+  statusSummary?: string;
 }
 
 interface Department {
@@ -24,26 +26,33 @@ export interface User {
   totalProjects?: number;
 }
 
+export interface UserListItem {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  totalProjects?: number;
+  departmentSummary?: { [key: string]: string };
+}
+
 export default function () {
   const $fetch = useFetchModel({
     baseURL: 'https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users'
   })
 
   const USER_FIELDS: Field[] = [
-    'id',
-    'name',
-    'email',
-    'avatar',
-    'skills',
-    {
-      key: 'departments.*.title',
-    },
-    {
-      key: 'departments.*.role',
-    },
+    { key: '*', omit: ['password'] },
+    'departments',
     {
       key: 'departments.*.projects',
-      fields: ['name', 'status']
+      fields: ['*', {
+        key: 'statusSummary',
+        mapping: ({ model }: { model: Project }) => {
+          const statusEmoji = model.status.toLowerCase() === 'completed' ? '✅' :
+                              model.status.toLowerCase() === 'in progress' ? '🚧' : '🔜';
+          return `${statusEmoji} ${model.name} (${model.status})`;
+        }
+      }]
     },
     {
       key: 'departmentSummary',
@@ -62,6 +71,28 @@ export default function () {
     }
   ]
 
+  const USERS_FIELDS: Field[] = [
+    'id',
+    'name',
+    'email',
+    'avatar',
+    {
+      key: 'totalProjects',
+      mapping: ({ model }: { model: User }) => {
+        return Object.values(model.departments).reduce((total, dept) => total + dept.projects.length, 0);
+      }
+    },
+    {
+      key: 'departmentSummary',
+      mapping: ({ model }: { model: User }) => {
+        return Object.entries(model.departments).reduce((acc, [key, dept]) => {
+          acc[key] = `${dept.role} in ${dept.title} (${dept.projects.length} projects)`;
+          return acc;
+        }, {} as { [key: string]: string });
+      }
+    }
+  ]
+
   return {
     findOne: async (userId: string, options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
       return $fetch.get<User>(userId, {
@@ -73,10 +104,10 @@ export default function () {
       })
     },
     get: async (options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
-      return $fetch.get<User[]>({
+      return $fetch.get<UserListItem[]>({
         ...options,
         transform: {
-          fields: USER_FIELDS,
+          fields: USERS_FIELDS,
           context: {}
         }
       })

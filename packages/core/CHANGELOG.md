@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9
+
+### Patch Changes
+
+- feat: Enhance mapping system and user data management
+
 ## 1.0.8
 
 ### Patch Changes
