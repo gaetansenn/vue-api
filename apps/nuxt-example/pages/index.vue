@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-const { get } = useApiUsers()
+const { get } = await useApiUsers()
 
 const users = await get()
 </script>

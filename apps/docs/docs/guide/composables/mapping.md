@@ -306,30 +306,42 @@ This would set the scope specifically to the budget object, allowing direct acce
 
 ## Scope
 
-The `scope` property in a `FieldObject` allows you to specify a different part of the model to use for this specific field's mapping. This is particularly useful when working with nested structures and wildcards.
+The `scope` property in a `FieldObject` allows you to specify which part of the model to use for this specific field's mapping. By default, the scope is set to the current value of the `key` property. This means that when mapping nested objects, the scope automatically adjusts to the current level of nesting.
 
-### Example of using scope
+However, there may be cases where you want to access data from a different part of the model. This is where explicitly setting the `scope` property becomes useful.
+
+### Example of default scope behavior and custom scope
 
 ```ts
 const model = {
-  company: {
-    departments: {
-      engineering: { employees: 50, budget: { allocated: 1000000 } },
-      marketing: { employees: 30, budget: { allocated: 500000 } }
+  user: {
+    name: 'John Doe',
+    age: 30,
+    address: {
+      street: '123 Main St',
+      city: 'Anytown'
     }
+  },
+  company: {
+    name: 'Acme Inc',
+    employees: 100
   }
 };
 
 const fields = [
-  'company.name',
   {
-    key: 'company.departments.*',
+    key: 'user',
     fields: [
-      'employees',
+      'name',
+      'age',
       {
-        key: 'budget.allocated',
-        scope: 'company.departments.*',
-        mapping: ({ model }) => `$${model.allocated / 1000000}M`
+        key: 'location',
+        mapping: ({ model }) => `${model.address.city}, ${model.address.street}`
+      },
+      {
+        key: 'companyInfo',
+        scope: 'company',
+        mapping: ({ model }) => `Works at ${model.name} with ${model.employees} colleagues`
       }
     ]
   }
@@ -338,7 +350,23 @@ const fields = [
 const { value } = useTransform(model, fields);
 ```
 
-In this example, the `scope` property in the `budget.allocated` field ensures that the `model` passed to the mapping function is the specific department object, allowing direct access to the `allocated` property.
+Output:
+```json
+{
+  "user": {
+    "name": "John Doe",
+    "age": 30,
+    "location": "Anytown, 123 Main St",
+    "companyInfo": "Works at Acme Inc with 100 colleagues"
+  }
+}
+```
+
+In this example:
+1. The `location` field doesn't specify a `scope`, so it uses the default scope (which is `user`). This allows it to access `model.address` directly.
+2. The `companyInfo` field sets its `scope` to `company`. This changes the context of the `model` parameter in its mapping function, allowing it to access company data even though it's being mapped within the `user` object.
+
+This approach demonstrates how `scope` can be used to access different parts of the model, regardless of where the field is positioned in the mapping structure. It's particularly useful for creating derived fields that combine data from various parts of your model.
 
 ## Path
 
@@ -439,159 +467,217 @@ In this example, the `password` field is omitted from the top-level object, and 
 
 ## Examples
 
-Here are some examples to illustrate different use cases of the mapping system:
-
-### Basic Mapping with Wildcards and Specific Transformations
+Let's explore a complex example that demonstrates various advanced features of the mapping system:
 
 ```ts
-const model = {
-  user: {
-    personalInfo: { name: 'John Doe', age: 30, email: 'john@example.com' },
-    preferences: { theme: 'dark', notifications: true }
+const companyData = {
+  info: {
+    name: 'TechCorp',
+    founded: 2005,
+    headquarters: {
+      city: 'San Francisco',
+      country: 'USA'
+    }
   },
-  posts: [
-    { id: 1, title: 'Hello World', views: 100, createdAt: '2023-01-01T00:00:00Z' },
-    { id: 2, title: 'Mapping is Fun', views: 150, createdAt: '2023-01-15T00:00:00Z' }
+  departments: {
+    engineering: {
+      head: 'Jane Doe',
+      employeeCount: 50,
+      projects: [
+        { id: 'P1', name: 'Project Alpha', status: 'active', budget: 1000000 },
+        { id: 'P2', name: 'Project Beta', status: 'planning', budget: 500000 },
+        { id: 'P3', name: 'Project Gamma', status: 'completed', budget: 750000 },
+        { id: 'P4', name: 'Project Delta', status: 'active', budget: 1200000 }
+      ]
+    },
+    marketing: {
+      head: 'John Smith',
+      employeeCount: 30,
+      projects: [
+        { id: 'M1', name: 'Brand Refresh', status: 'active', budget: 800000 },
+        { id: 'M2', name: 'Social Media Campaign', status: 'planning', budget: 300000 },
+        { id: 'M3', name: 'Product Launch', status: 'completed', budget: 500000 }
+      ]
+    },
+    finance: {
+      head: 'Alice Johnson',
+      employeeCount: 15,
+      budget: 500000,
+      projects: [
+        { id: 'F1', name: 'Cost Optimization', status: 'active', budget: 200000 },
+        { id: 'F2', name: 'Financial Reporting System', status: 'planning', budget: 350000 },
+        { id: 'F3', name: 'Budget Analysis', status: 'active', budget: 150000 }
+      ]
+    }
+  },
+  clients: [
+    { id: 1, name: 'Acme Corp', contractValue: 500000, active: true },
+    { id: 2, name: 'GlobalTech', contractValue: 750000, active: false },
+    { id: 3, name: 'InnoSystems', contractValue: 1000000, active: true },
+    { id: 4, name: 'TechGiants', contractValue: 1200000, active: true }
   ]
-}
+};
+
+const currentYear = 2023;
 
 const fields = [
-  'user.personalInfo.*',
-  'user.preferences.theme',
   {
-    key: 'posts',
+    key: 'companyOverview',
     fields: [
-      '*',
-      {
-        key: 'views',
-        mapping: ({ model }) => `${model} views`
+      { key: 'name', path: 'info.name' },
+      { 
+        key: 'age', 
+        mapping: ({ model }) => currentYear - model.info.founded
       },
       {
-        key: 'createdAt',
-        mapping: ({ model }) => new Date(model).toLocaleDateString()
+        key: 'location',
+        mapping: ({ model }) => `${model.info.headquarters.city}, ${model.info.headquarters.country}`
       }
     ]
-  }
-]
-
-const { value } = useTransform(model, fields)
-```
-
-Output:
-```json
-{
-  "user": {
-    "personalInfo": {
-      "name": "John Doe",
-      "age": 30,
-      "email": "john@example.com"
-    },
-    "preferences": {
-      "theme": "dark"
-    }
   },
-  "posts": [
-    {
-      "id": 1,
-      "title": "Hello World",
-      "views": "100 views",
-      "createdAt": "1/1/2023"
-    },
-    {
-      "id": 2,
-      "title": "Mapping is Fun",
-      "views": "150 views",
-      "createdAt": "1/15/2023"
-    }
-  ]
-}
-```
-
-This example demonstrates:
-- Using wildcards to include all fields in `personalInfo`
-- Selecting specific fields from nested objects (`preferences.theme`)
-- Applying transformations to specific fields within an array of objects (`posts`)
-
-### Advanced Mapping with Context and Filters
-
-```ts
-const model = {
-  products: [
-    { id: 1, name: 'Laptop', price: 1000, inStock: true },
-    { id: 2, name: 'Phone', price: 500, inStock: false },
-    { id: 3, name: 'Tablet', price: 300, inStock: true }
-  ]
-}
-
-const context = {
-  currency: 'USD',
-  exchangeRate: 0.85, // USD to EUR
-  formatCurrency: (amount, currency) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount)
-  }
-}
-
-const fields = [
   {
-    key: 'products',
+    key: 'departments',
+    fields: [
+      {
+        key: '*',
+        fields: [
+          'head',
+          'employeeCount',
+          {
+            key: 'projects',
+            fields: ['id', 'name', 'status'],
+            filter: (project) => project.status !== 'completed'
+          },
+          {
+            key: 'budgetAllocation',
+            mapping: ({ model, key }) => {
+              if (key === 'finance') return model.budget;
+              if (model.projects) return model.projects.reduce((sum, p) => sum + p.budget, 0);
+              if (model.campaigns) return model.campaigns.reduce((sum, c) => sum + c.budget, 0);
+              return 0;
+            }
+          }
+        ],
+        omit: ['budget']
+      }
+    ]
+  },
+  {
+    key: 'activeClients',
+    path: 'clients',
+    filter: (client) => client.active,
     fields: [
       'id',
       'name',
       {
-        key: 'price',
-        mapping: ({ model, context }) => {
-          const priceInEUR = model * context.exchangeRate
-          return {
-            USD: context.formatCurrency(model, 'USD'),
-            EUR: context.formatCurrency(priceInEUR, 'EUR')
-          }
-        }
-      },
-      {
-        key: 'status',
-        mapping: ({ model }) => model.inStock ? 'Available' : 'Out of Stock'
+        key: 'contractValue',
+        mapping: ({ model }) => `$${(model.contractValue / 1000000).toFixed(2)}M`
       }
-    ],
-    filter: (product) => product.inStock
+    ]
+  },
+  {
+    key: 'financialSummary',
+    mapping: ({ originModel }) => {
+      const totalBudget = Object.values(originModel.departments).reduce((sum, dept: any) => {
+        if (dept.budget) return sum + dept.budget;
+        if (dept.projects) return sum + dept.projects.reduce((pSum, p) => pSum + p.budget, 0);
+        if (dept.campaigns) return sum + dept.campaigns.reduce((cSum, c) => cSum + c.budget, 0);
+        return sum;
+      }, 0);
+      const activeClientRevenue = originModel.clients
+        .filter(c => c.active)
+        .reduce((sum, c) => sum + c.contractValue, 0);
+      return {
+        totalBudget: `$${(totalBudget / 1000000).toFixed(2)}M`,
+        activeClientRevenue: `$${(activeClientRevenue / 1000000).toFixed(2)}M`,
+        projectedProfit: `$${((activeClientRevenue - totalBudget) / 1000000).toFixed(2)}M`
+      };
+    }
   }
-]
+];
 
-const { value } = useTransform(model, fields, context)
+const { value } = useTransform(companyData, fields);
 ```
+
+**The resulting transformed data would look like this:**
 
 Output:
 ```json
 {
-  "products": [
-    {
-      "id": 1,
-      "name": "Laptop",
-      "price": {
-        "USD": "$1,000.00",
-        "EUR": "€850.00"
-      },
-      "status": "Available"
+  "companyOverview": {
+    "name": "TechCorp",
+    "age": 18,
+    "location": "San Francisco, USA"
+  },
+  "departments": {
+    "engineering": {
+      "head": "Jane Doe",
+      "employeeCount": 50,
+      "projects": [
+        { "id": "P1", "name": "Project Alpha", "status": "active" },
+        { "id": "P2", "name": "Project Beta", "status": "planning" },
+        { "id": "P4", "name": "Project Delta", "status": "active" }
+      ],
+      "budgetAllocation": 2700000
     },
-    {
-      "id": 3,
-      "name": "Tablet",
-      "price": {
-        "USD": "$300.00",
-        "EUR": "€255.00"
-      },
-      "status": "Available"
+    "marketing": {
+      "head": "John Smith",
+      "employeeCount": 30,
+      "projects": [
+        { "id": "M1", "name": "Brand Refresh", "status": "active" },
+        { "id": "M2", "name": "Social Media Campaign", "status": "planning" }
+      ],
+      "budgetAllocation": 1100000
+    },
+    "finance": {
+      "head": "Alice Johnson",
+      "employeeCount": 15,
+      "projects": [
+        { "id": "F1", "name": "Cost Optimization", "status": "active" },
+        { "id": "F2", "name": "Financial Reporting System", "status": "planning" },
+        { "id": "F3", "name": "Budget Analysis", "status": "active" }
+      ],
+      "budgetAllocation": 500000
     }
-  ]
+  },
+  "activeClients": [
+    { "id": 1, "name": "Acme Corp", "contractValue": "$0.50M" },
+    { "id": 3, "name": "InnoSystems", "contractValue": "$1.00M" },
+    { "id": 4, "name": "TechGiants", "contractValue": "$1.20M" }
+  ],
+  "financialSummary": {
+    "totalBudget": "$4.30M",
+    "activeClientRevenue": "$2.70M",
+    "projectedProfit": "-$1.60M"
+  }
 }
 ```
 
-This advanced example showcases:
-- Using context to provide global data and functions
-- Complex field transformations (currency conversion and formatting)
-- Filtering array elements based on a condition
-- Creating new fields based on existing data (`status`)
+This example showcases how the mapping system can handle complex data transformations, including nested structures, custom calculations, and selective data inclusion/exclusion. It demonstrates the power and flexibility of the system in reshaping and deriving insights from complex data structures.
 
-These examples demonstrate the flexibility and power of the mapping system, allowing for complex data transformations with relatively simple configuration.
+This complex example demonstrates:
+
+1. **Nested structure handling**: The company data has multiple levels of nesting, which are handled efficiently.
+
+2. **Custom mapping**: Several fields use custom mapping functions to derive new values or format existing ones, such as calculating the company's age and formatting the location.
+
+3. **Path usage**: The `companyOverview.name` field uses a `path` to directly access nested data from the `info` object.
+
+4. **Wildcard with omit**: In the departments section, `'*'` is used with `omit` to include all fields except 'budget'.
+
+5. **Filtering**: The `projects` field uses a filter function to exclude completed projects, and `activeClients` filters out inactive clients.
+
+6. **Array handling**: The projects array in each department is transformed and filtered.
+
+7. **Complex calculations**: The `budgetAllocation` field performs calculations based on the projects' budgets, and `financialSummary` computes totals across all departments and clients.
+
+8. **Conditional logic**: The `budgetAllocation` mapping function uses conditional logic to handle different department structures (finance vs. others).
+
+9. **Global context usage**: The `currentYear` variable is used in a mapping function to calculate the company's age, demonstrating how external data can be incorporated.
+
+10. **Formatting output**: The `contractValue` and financial summary fields format monetary values into millions of dollars with a specific format.
+
+This example illustrates the system's ability to handle diverse data structures and perform complex transformations, making it suitable for a wide range of data processing tasks.
 
 ## Transformation Process
 

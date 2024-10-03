@@ -50,7 +50,9 @@
 
 <script setup lang="ts">
 const { params } = useRoute()
-const { findOne } = useApiUsers()
+const { findOne } = await useApiUsers()
 
 const user = await findOne(params.id as string)
+
+console.dir(user.data.value, { depth: null })
 </script>

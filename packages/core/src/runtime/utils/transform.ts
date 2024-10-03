@@ -45,14 +45,26 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
   const newModel: any = {}
 
   fields.forEach((field: Field) => {
-    const key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
+    let updatedModel = model
+
+    let key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
 
     // We normalize to camelCase if format is true
     const normalizedKey = formatKey(key, format)
 
+    // Update current value with custom path
+    if (isObject(field) && (field as FieldObject).path) {
+      const pathValue = get(originModel, (field as FieldObject).path)
+      set(newModel, normalizedKey, pathValue)
+
+      updatedModel = pathValue
+      // We set key as new path has been created
+      key = ''
+    }
+
     // Check for empty value and handle default value
     if (isObject(field)) {
-      if (model === null || isEmpty(model) || !(field as FieldObject).mapping && !(field as FieldObject).path && (get(model, (field as FieldObject).key) === null || get(model, (field as FieldObject).key) === undefined)) {
+      if (updatedModel === null || isEmpty(updatedModel) || !(field as FieldObject).mapping || ((field as FieldObject).path || (!(field as FieldObject).fields)) ? false : get(updatedModel, (field as FieldObject).key) === null || get(updatedModel, (field as FieldObject).key) === undefined) {
           if (!(field as FieldObject).default) return
 
           set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
@@ -66,22 +78,27 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
       return get(newModel, normalizedKey)
     }
 
-    // Update current value with custom path
-    if (isObject(field) && (field as FieldObject).path) {
-      set(newModel, normalizedKey, get(originModel, (field as FieldObject).path))
-    }
-
     const mapFields = (sourceModel: any) => {
-      if (!get(sourceModel, (field as FieldObject).key) && (field as FieldObject).default) return (field as FieldObject).default
-      if (Array.isArray(get(sourceModel, (field as FieldObject).key)))
-        return get(sourceModel, (field as FieldObject).key).filter((m: any) => {
+      const hasScopeOrPath = (field as FieldObject).fields.findIndex((f: Field) => isObject(f) && ((f as FieldObject).scope || (f as FieldObject).path)) !== -1
+      let currentValue = (field as FieldObject).path ? sourceModel : get(sourceModel, (field as FieldObject).key)
+
+      // Ignore mapping if currentVaule is undefined and no field with scope / path provided
+      if (!hasScopeOrPath && !currentValue) return
+      else currentValue = sourceModel
+    
+      if (!currentValue && (field as FieldObject).default) return (field as FieldObject).default
+      // Handle array
+      if (Array.isArray(currentValue))
+        return currentValue.filter((m: any) => {
           if ((field as FieldObject).filter) return (field as FieldObject).filter(m)
           else return true
         }).map((m: any) => {
           return extractModel((field as FieldObject).fields, m, context, format, sourceModel, originModel)
         })
       else
-        return extractModel((field as FieldObject).fields, get(sourceModel, (field as FieldObject).key), context, format, sourceModel, originModel)
+      {
+        return extractModel((field as FieldObject).fields, currentValue, context, format, sourceModel, originModel)
+      }
     }
 
     let result = undefined
@@ -90,13 +107,13 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
     if ((field as FieldObject).mapping) {
       try {
         // Mapping method should always return a value (`return` will break the `forEach` method)
-        result = ((field as FieldObject).mapping as MappingFunction)({ model: (field as FieldObject).scope ? get(originModel, (field as FieldObject).scope) : model, key: (field as FieldObject).key, newModel, parentModel, originModel, context })
+        result = ((field as FieldObject).mapping as MappingFunction)({ model: (field as FieldObject).scope ? get(originModel, (field as FieldObject).scope) : updatedModel, key: (field as FieldObject).key, newModel, parentModel, originModel, context })
       } catch (err) {
         console.error('error of mapping', err)
       }
     }
     // Handle fields and inject mapping result if present
-    if ((field as FieldObject).fields) result = mapFields(result ? { [`${(field as FieldObject).key}`]: result, ...parentModel } : model)
+    if ((field as FieldObject).fields) result = mapFields(result ? { [`${(field as FieldObject).key}`]: result, ...parentModel } : updatedModel)
     if (!(field as FieldObject).mapping && !((field as FieldObject).fields) && (field as FieldObject).default) result = get(model, (field as FieldObject).key) || (field as FieldObject).default
 
     // Avoid adding mapping result when undefined
@@ -112,56 +129,86 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 function expandWildcardFields(fields: Field[], model: any): Field[] {
   function expandField(field: Field, currentModel: any): Field[] {
     if (typeof field === 'string') {
-      return field.includes('*') ? expandWildcardString(field, currentModel).map(f => f) : [field];
+      return field.includes('*') ? expandWildcardString(field, currentModel) : [field];
     }
 
     if (typeof field !== 'object') return [field];
 
-    const { key, fields: subFields, omit = [], ...rest } = field;
+    const { key, newKey, fields: subFields, omit = [], ...rest } = field;
 
     let expandedFields: Field[] = [];
-    const expandedKeys = key.includes('*') ? expandWildcardString(key, currentModel) : [key];
 
-    expandedKeys.forEach(expandedKey => {
-      if (omit.includes(expandedKey)) return; // Skip omitted fields
-
-      const subModel = get(currentModel, expandedKey);
-
-      if (subFields) {
-        let expandedSubFields;
-        if (Array.isArray(subModel) && subModel.length > 0) {
-          const firstItem = subModel[0];
-          expandedSubFields = subFields.flatMap(subField => 
-            subField === '*' ? Object.keys(firstItem).filter(k => !omit.includes(k)) : expandField(subField, firstItem)
-          );
-        } else {
-          expandedSubFields = subFields.flatMap(subField => 
-            subField === '*' ? (isObject(subModel) ? Object.keys(subModel).filter(k => !omit.includes(k)) : []) : expandField(subField, subModel)
-          );
-        }
-        
-        expandedFields.push({
+    if (key.includes('*')) {
+      const expandedKeys = expandWildcardString(key, currentModel);
+      expandedFields = expandedKeys.map(expandedKey => {
+        const subModel = get(currentModel, expandedKey);
+        return {
           ...rest,
           key: expandedKey,
-          fields: expandedSubFields
-        });
-      } else if (Object.keys(rest).length === 0) {
-        expandedFields.push(expandedKey);
-      } else {
+          ...(newKey ? { newKey: newKey.replace('*', expandedKey.split('.').pop()!) } : {}),
+          ...(subFields ? { fields: expandSubFields(subFields, subModel, omit) } : {})
+        };
+      });
+    } else {
+      const subModel = get(currentModel, key);
+      if (subFields) {
         expandedFields.push({
-          ...rest,
-          key: expandedKey
+          ...(newKey ? { newKey } : {}),
+          key,
+          fields: expandSubFields(subFields, subModel, omit),
+          ...rest
         });
+      } else if (key === '*') {
+        expandedFields = Object.keys(currentModel)
+          .filter(k => !omit.includes(k))
+          .map(k => Object.keys(rest).length ? { ...rest, key: k } : k);
+      } else if (key.endsWith('.*')) {
+        const baseKey = key.slice(0, -2);
+        if (isObject(subModel)) {
+          expandedFields = Object.keys(subModel)
+            .filter(k => !omit.includes(k))
+            .map(k => `${baseKey}.${k}`);
+        }
+      } else {
+        expandedFields.push(field);
+      }
+    }
+
+    return expandedFields;
+  }
+
+  function expandSubFields(subFields: Field[], subModel: any, omit: string[]): Field[] {
+    let expandedSubFields: Field[] = [];
+    let customFields: Field[] = [];
+
+    subFields.forEach(subField => {
+      if (typeof subField === 'object' && !subField.key?.includes('*')) {
+        customFields.push(subField);
+      } else {
+        const subSubModel = Array.isArray(subModel) ? subModel[0] : subModel;
+        expandedSubFields = [...expandedSubFields, ...expandField(subField, subSubModel)];
       }
     });
 
-    return expandedFields;
+    if (subFields.includes('*')) {
+      const subSubModel = Array.isArray(subModel) ? subModel[0] : subModel;
+      const allKeys = isObject(subSubModel) ? Object.keys(subSubModel) : [];
+      expandedSubFields = [
+        ...expandedSubFields,
+        ...allKeys.filter(k => !omit.includes(k) && !expandedSubFields.some(f => (typeof f === 'string' ? f : f.key) === k))
+      ];
+    }
+
+    expandedSubFields = expandedSubFields.filter(f => 
+      typeof f === 'string' ? !omit.includes(f) : !omit.includes(f.key)
+    );
+
+    return [...expandedSubFields, ...customFields];
   }
 
   return fields.flatMap(field => expandField(field, model));
 }
 
-// Fonction auxiliaire pour expandre une chaîne contenant un wildcard
 function expandWildcardString(str: string, model: any): string[] {
   const parts = str.split('.');
   const wildcardIndex = parts.indexOf('*');
@@ -174,14 +221,13 @@ function expandWildcardString(str: string, model: any): string[] {
   let currentObject = model;
   for (const part of beforeWildcard) {
     currentObject = currentObject[part];
-    if (!currentObject) return [str]; // Return original if path doesn't exist
+    if (!currentObject) return [str];
   }
 
   if (!isObject(currentObject)) return [str];
 
-  return Object.keys(currentObject).map(key => 
-    [...beforeWildcard, key, ...afterWildcard].join('.')
-  );
+  return Object.keys(currentObject)
+    .map(key => [...beforeWildcard, key, ...afterWildcard].join('.'));
 }
 
 export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: ITransformOptions) {

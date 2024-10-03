@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.10
+
+### Patch Changes
+
+- fix(core): fix some issues with mapping and improve doc"
+
 ## 1.0.9
 
 ### Patch Changes
