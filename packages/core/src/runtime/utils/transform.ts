@@ -23,7 +23,7 @@ export type TransformFormat = 'camelCase';
 export interface ITransformOptions {
   scope?: string;
   format?: TransformFormat;
-  context: IContext;
+  context?: IContext;
 }
 
 function formatKey (key: string, format?: TransformFormat) {
@@ -263,6 +263,6 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
 
   return {
     getEmpty,
-    value: extractModel(expandedFields, unrefModel, options?.context, options?.format)
+    value: extractModel(expandedFields, unrefModel, options?.context || {}, options?.format)
   };
 }
