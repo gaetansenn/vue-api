@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.12
+
+### Patch Changes
+
+- fix: handle path with expandWildcardFields
+
 ## 1.0.11
 
 ### Patch Changes
