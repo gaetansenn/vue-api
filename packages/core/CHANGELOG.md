@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.11
+
+### Patch Changes
+
+- feat: add context as optional for transform
+
 ## 1.0.10
 
 ### Patch Changes
