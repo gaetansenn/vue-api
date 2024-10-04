@@ -45,6 +45,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
   const newModel: any = {}
 
   fields.forEach((field: Field) => {
+    console.log('map field', field, 'got model', model)
     let updatedModel = model
 
     let key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
@@ -134,34 +135,43 @@ function expandWildcardFields(fields: Field[], model: any): Field[] {
 
     if (typeof field !== 'object') return [field];
 
-    const { key, newKey, fields: subFields, omit = [], ...rest } = field;
+    const { key, newKey, fields: subFields, omit = [], path, ...rest } = field;
 
     let expandedFields: Field[] = [];
+    let subModel = path ? get(model, path) : get(currentModel, key);
 
     if (key.includes('*')) {
-      const expandedKeys = expandWildcardString(key, currentModel);
+      const expandedKeys = expandWildcardString(key, subModel);
       expandedFields = expandedKeys.map(expandedKey => {
-        const subModel = get(currentModel, expandedKey);
+        const subSubModel = get(subModel, expandedKey);
         return {
           ...rest,
           key: expandedKey,
           ...(newKey ? { newKey: newKey.replace('*', expandedKey.split('.').pop()!) } : {}),
-          ...(subFields ? { fields: expandSubFields(subFields, subModel, omit) } : {})
+          ...(subFields ? { fields: expandSubFields(subFields, subSubModel, omit) } : {}),
+          ...(path ? { path } : {})
         };
       });
+    } else if (key === '*' && Array.isArray(subModel)) {
+      expandedFields = subModel.map((_, index) => ({
+        ...rest,
+        key: `${index}`,
+        ...(subFields ? { fields: expandSubFields(subFields, subModel[index], omit) } : {}),
+        ...(path ? { path } : {})
+      }));
     } else {
-      const subModel = get(currentModel, key);
       if (subFields) {
         expandedFields.push({
           ...(newKey ? { newKey } : {}),
           key,
           fields: expandSubFields(subFields, subModel, omit),
-          ...rest
+          ...rest,
+          ...(path ? { path } : {})
         });
       } else if (key === '*') {
-        expandedFields = Object.keys(currentModel)
+        expandedFields = Object.keys(subModel)
           .filter(k => !omit.includes(k))
-          .map(k => Object.keys(rest).length ? { ...rest, key: k } : k);
+          .map(k => Object.keys(rest).length ? { ...rest, key: k, ...(path ? { path } : {}) } : k);
       } else if (key.endsWith('.*')) {
         const baseKey = key.slice(0, -2);
         if (isObject(subModel)) {
@@ -170,7 +180,7 @@ function expandWildcardFields(fields: Field[], model: any): Field[] {
             .map(k => `${baseKey}.${k}`);
         }
       } else {
-        expandedFields.push(field);
+        expandedFields.push({ ...field, ...(path ? { path } : {}) });
       }
     }
 
@@ -260,6 +270,9 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
     
     return emptyModel;
   }
+
+  console.dir(expandedFields, { depth: null })
+
 
   return {
     getEmpty,
