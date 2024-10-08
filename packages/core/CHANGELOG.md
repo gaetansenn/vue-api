@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.13
+
+### Patch Changes
+
+- refactor: clean up code
+
 ## 1.0.12
 
 ### Patch Changes

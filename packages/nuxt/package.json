@@ -1,6 +1,6 @@
 {
   "name": "@vue-api/nuxt",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Nuxt plugin of vue-api module",
   "repository": "gaetansenn/vue-api",
   "license": "MIT",

@@ -1,6 +1,54 @@
 # TODO
 
 ## High Priority
+- [ ] Omit value when parent has * but field has newKey we should omit the newKey
+- [ ] Fix bug of key * with omit with parent path ?
+```ts
+const model = {
+    data: {
+      facets: [
+        {
+          id: 11,
+          __component: "algolia.facet-checkbox-group",
+          key: "pays",
+          label: "Pays",
+          searchable: true,
+          theme: "default",
+          searchPlaceholder: "Je recherche un pays...",
+          seeMore: "J'affiche les {0} pays",
+          cols: null,
+          displayCustomOptionsOnly: false,
+          seeLess: "J'affiche moins de pays",
+        },
+      ],
+    },
+  };
+fields: [{
+        key: 'facets',
+        path: 'data.facets',
+        fields: [
+          { key: '*', omit: ['__component'] },
+          {
+            key: 'component',
+            mapping: ({ model }) => {
+              switch (model.__component) {
+                case 'algolia.facet-checkbox-group':
+                  return resolveComponent('AlgoliaFacetCheckBoxGroup')
+              }
+            }
+          }
+        ]
+      }]
+```
+- [ ] Fix bug omit with path
+```ts
+fields: [{
+        key: 'facets',
+        path: 'data.facets',
+        omit: ['id']
+      }]
+```
+
 - [ ] Improve `parentModel` handling in `extractModel` function for nested fields and wildcards
   - Update logic to correctly pass `parentModel` through nested levels
   - Ensure `parentModel` is correctly set for wildcard expansions
@@ -33,6 +81,7 @@
 - [ ] Document new clean-up functionality and configuration options
   - Update user guide with examples of handling inconsistent data structures
   - Provide best practices for using the clean-up feature
+
 
 ## Completed
 - [x] Implement initial version of `extractModel` function

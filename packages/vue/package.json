@@ -1,6 +1,6 @@
 {
   "name": "@vue-api/vue",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Vue plugin of vue-api module",
   "repository": "gaetansenn/vue-api",
   "license": "MIT",
