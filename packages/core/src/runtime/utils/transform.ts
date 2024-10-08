@@ -45,7 +45,6 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
   const newModel: any = {}
 
   fields.forEach((field: Field) => {
-    console.log('map field', field, 'got model', model)
     let updatedModel = model
 
     let key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
