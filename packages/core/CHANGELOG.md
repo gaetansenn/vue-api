@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.16
+
+### Patch Changes
+
+- fix: handle model array in useTransform instead of fetch providers
+
 ## 1.0.15
 
 ### Patch Changes

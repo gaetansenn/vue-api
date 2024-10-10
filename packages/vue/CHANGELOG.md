@@ -1,5 +1,12 @@
 # @vue-api/vue
 
+## 1.0.16
+
+### Patch Changes
+
+- Updated dependencies
+  - @vue-api/core@1.0.16
+
 ## 1.0.15
 
 ### Patch Changes
