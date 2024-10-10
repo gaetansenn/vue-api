@@ -320,9 +320,6 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
     return emptyModel;
   }
 
-  console.dir(expandedFields, { depth: null })
-
-
   return {
     getEmpty,
     value: extractModel(expandedFields, unrefModel, options?.context || {}, options?.format)
