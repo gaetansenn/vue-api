@@ -53,6 +53,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
   const newModel: any = {}
 
   fields.forEach((field: Field) => {
+    console.log('handle field', field, 'with model', model)
     let updatedModel = model
 
     const hasPath = (field as FieldObject).path
@@ -74,6 +75,8 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
       if ((field as FieldObject).path) key = ''
     }
 
+    console.log('updateModel is now', updatedModel)
+
     // Check for empty value and handle default value
     if (isObject(field)) {
       if (updatedModel === null || isEmpty(updatedModel) || !(field as FieldObject).mapping || ((field as FieldObject).path || (!(field as FieldObject).fields)) ? false : get(updatedModel, (field as FieldObject).key) === null || get(updatedModel, (field as FieldObject).key) === undefined) {
@@ -84,13 +87,17 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
       }
     } else if (model === null || isEmpty(model) || get(model, field as string) === null) return
 
+    console.log('not emtpy value')
+
     // Return value if only key access
     if ((isObject(field) && (!(field as FieldObject).mapping && !((field as FieldObject).fields)) && !((field as FieldObject).path)) || !isObject(field)) {
+      console.log('return value if only key access')
       set(newModel, normalizedKey, get(model, isObject(field) ? (field as FieldObject).key as string : field as string))
       return get(newModel, normalizedKey)
     }
 
     const mapFields = (sourceModel: any) => {
+      console.log('map fields', sourceModel)
       const hasFieldsScopeOrPath = (field as FieldObject).fields.findIndex((f: Field) => isObject(f) && ((f as FieldObject).scope || (f as FieldObject).path)) !== -1
 
       // Ignore mapping if currentVaule is undefined and no field with scope / path provided
@@ -100,9 +107,11 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
       // We inject model with key if no scope or path
       if (!hasScope && !hasPath) {
+        console.log('inject sourcemodel')
         sourceModel = get(sourceModel, (field as FieldObject).key as string)
       }
 
+      console.log('handle fields')
       // Handle array
       if (Array.isArray(sourceModel))
         return sourceModel.filter((m: any) => {
@@ -121,6 +130,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
     // Handle mapping
     if ((field as FieldObject).mapping) {
+      console.log('handle mapping')
       try {
         // Mapping method should always return a value (`return` will break the `forEach` method)
         result = ((field as FieldObject).mapping as MappingFunction)({ model: (field as FieldObject).scope ? get(originModel, (field as FieldObject).scope) : updatedModel, key: (field as FieldObject).key, newModel, parentModel, originModel, context })
@@ -368,6 +378,7 @@ export function newExtractModel<T>(fields: Field[], model: any, format?: Transfo
   const currentModel = model
 
   fields.forEach((field: Field) => {
+    console.log('field', field, 'with model', model)
     const isObjectField = isObject(field)
     const hasMapping = (field as FieldObject).mapping
     const hasFields = (field as FieldObject).fields
@@ -380,6 +391,7 @@ export function newExtractModel<T>(fields: Field[], model: any, format?: Transfo
 
     // Return value if only key access
     if (isObjectField && !hasMapping && !hasFields && !hasPath || !isObject(field)) {
+      console.log('on set non ?')
       set(outputModel, normalizedKey, get(model, isObject(field) ? (field as FieldObject).key as string : field as string))
 
       // Exist current field iteration
@@ -391,6 +403,7 @@ export function newExtractModel<T>(fields: Field[], model: any, format?: Transfo
     // Map field function 
     const mapField = () => {
       // We check if key is 
+      console.log('map field', normalizedKey)
       const sourceModel = currentModel[normalizedKey]
 
       if (Array.isArray(sourceModel)) return sourceModel.map((item: any) => newExtractModel((field as FieldObject).fields, item, format, currentModel, originModel))

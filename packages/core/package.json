@@ -39,7 +39,8 @@
     "prepare": "unbuild",
     "dev": "unbuild",
     "build": "unbuild",
-    "changelog": "standard-version"
+    "changelog": "standard-version",
+    "test": "vitest"
   },
   "dependencies": {
     "@vueuse/core": "^9.10.0"

@@ -1,0 +1,15 @@
+.turbo
+node_modules
+.changesets
+packages/core/node_modules
+packages/core/dist
+package/nuxt/node_modules
+package/nuxt/dist
+package/vue/node_modules
+package/vue/dist
+package/docs/node_modules
+package/docs/dist
+package/vue-example/node_modules
+package/vue-example/dist
+package/nuxt-example/node_modules
+package/nuxt-example/dist
