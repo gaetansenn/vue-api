@@ -1,5 +1,12 @@
 # @vue-api/nuxt
 
+## 1.0.22
+
+### Patch Changes
+
+- Updated dependencies
+  - @vue-api/core@1.0.14
+
 ## 1.0.21
 
 ### Patch Changes

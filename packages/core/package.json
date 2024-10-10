@@ -1,6 +1,6 @@
 {
   "name": "@vue-api/core",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Vue-api core module",
   "repository": "gaetansenn/vue-api",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "dev": "unbuild",
     "build": "unbuild",
     "changelog": "standard-version",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@vueuse/core": "^9.10.0"
