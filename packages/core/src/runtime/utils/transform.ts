@@ -6,9 +6,9 @@ export type MappingFunction = (args: { model: any, key?: string, newModel?: any,
 export type FilterFunction = (m: any) => boolean;
 export type Field = FieldObject | string
 
-type WithoutBoth<T, K1 extends keyof T, K2 extends keyof T> = 
-  (T & { [K in K1]?: never } & { [K in K2]?: never }) | 
-  (T & { [K in K1]: T[K1] } & { [K in K2]?: never }) | 
+type WithoutBoth<T, K1 extends keyof T, K2 extends keyof T> =
+  (T & { [K in K1]?: never } & { [K in K2]?: never }) |
+  (T & { [K in K1]: T[K1] } & { [K in K2]?: never }) |
   (T & { [K in K1]?: never } & { [K in K2]: T[K2] });
 
 export interface FieldObjectBase {
@@ -34,7 +34,7 @@ export interface ITransformOptions {
   context?: IContext;
 }
 
-function formatKey (key: string, format?: TransformFormat) {
+function formatKey(key: string, format?: TransformFormat) {
   switch (format) {
     case 'camelCase': {
       return camelCase(key)
@@ -77,10 +77,10 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
     // Check for empty value and handle default value
     if (isObject(field)) {
       if (updatedModel === null || isEmpty(updatedModel) || !(field as FieldObject).mapping || ((field as FieldObject).path || (!(field as FieldObject).fields)) ? false : get(updatedModel, (field as FieldObject).key) === null || get(updatedModel, (field as FieldObject).key) === undefined) {
-          if (!(field as FieldObject).default) return
+        if (!(field as FieldObject).default) return
 
-          set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
-          return
+        set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
+        return
       }
     } else if (model === null || isEmpty(model) || get(model, field as string) === null) return
 
@@ -95,7 +95,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
       // Ignore mapping if currentVaule is undefined and no field with scope / path provided
       if (!hasFieldsScopeOrPath && !sourceModel) return
-    
+
       if (!sourceModel && (field as FieldObject).default) return (field as FieldObject).default
 
       // We inject model with key if no scope or path
@@ -111,8 +111,7 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
         }).map((m: any) => {
           return extractModel((field as FieldObject).fields, m, context, format, sourceModel, originModel)
         })
-      else
-      {
+      else {
         return extractModel((field as FieldObject).fields, sourceModel, context, format, sourceModel, originModel)
       }
     }
@@ -145,11 +144,11 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 function expandWildcardFields(fields: Field[], model: any): Field[] {
   const createFieldObject = (field: FieldObjectBase): FieldObject => {
     const { scope, path, ...rest } = field;
-    
+
     if (scope && path) {
       throw new Error("FieldObject cannot have both 'scope' and 'path'.");
     }
-  
+
     return {
       ...rest,
       ...(scope ? { scope } : {}),
@@ -266,7 +265,7 @@ function expandWildcardFields(fields: Field[], model: any): Field[] {
 function expandWildcardString(str: string, model: any): string[] {
   const parts = str.split('.');
   const wildcardIndex = parts.indexOf('*');
-  
+
   if (wildcardIndex === -1) return [str];
 
   const beforeWildcard = parts.slice(0, wildcardIndex);
@@ -291,7 +290,6 @@ function expandWildcardString(str: string, model: any): string[] {
 
 export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: ITransformOptions) {
   const unrefModel = unref(model);
-  const expandedFields = expandWildcardFields(fields, unrefModel);
 
   function getEmpty(): Partial<T> {
     const emptyModel: Partial<T> = {};
@@ -303,7 +301,7 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
         } else if (typeof field === 'object') {
           const { key, fields: subFields, default: defaultValue } = field;
           const value = defaultValue !== undefined ? defaultValue : null;
-          
+
           if (subFields) {
             const subModel = {};
             set(currentModel, key, subModel);
@@ -315,14 +313,26 @@ export function useTransform<T>(model: MaybeRef<T>, fields: Field[], options?: I
       });
     }
 
-    processFields(expandedFields, emptyModel);
-    
+    const expandedFields = Array.isArray(unrefModel)
+      ? unrefModel.map(item => expandWildcardFields(fields, item))
+      : expandWildcardFields(fields, unrefModel);
+
+    if (Array.isArray(expandedFields)) {
+      expandedFields.forEach(fields => processFields(fields, emptyModel));
+    } else {
+      processFields(expandedFields, emptyModel);
+    }
+
     return emptyModel;
   }
 
+  const transformedValue = Array.isArray(unrefModel)
+    ? unrefModel.map(item => extractModel(expandWildcardFields(fields, item), item, options?.context || {}, options?.format))
+    : extractModel(expandWildcardFields(fields, unrefModel), unrefModel, options?.context || {}, options?.format);
+
   return {
     getEmpty,
-    value: extractModel(expandedFields, unrefModel, options?.context || {}, options?.format)
+    value: transformedValue
   };
 }
 
@@ -371,7 +381,7 @@ export function newExtractModel<T>(fields: Field[], model: any, format?: Transfo
     const hasPath = (field as FieldObject).path
 
     let key: string = (isObjectField ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
-   
+
     // We normalize to camelCase if format is true
     const normalizedKey = formatKey(key, format)
 

@@ -7,7 +7,7 @@ import { get } from '../../../utils'
 
 export function useOfetchModel(options?: FetchOptions & { context?: IContext }): IHttpModel<FetchOptions> {
   const $fetch = options ? ofetch.create(options) : ofetch
-  
+
   const handleRequest: handleRequestFunction<FetchOptions, any> = (urlOrOptions, _params?) => {
     let url: string;
     let params: any;
@@ -37,8 +37,7 @@ export function useOfetchModel(options?: FetchOptions & { context?: IContext }):
       if (!fields) return response
 
       // Transform response
-      if (Array.isArray(response)) return response.map(item => useTransform(item as any, fields || [], { ...params, context }).value)
-      else return useTransform(response, fields, { ...params, context }).value
+      return useTransform(response, fields, { ...params, context }).value
     })
   }
 

@@ -60,6 +60,7 @@ fields: [{
   - Add option to handle cases where mapped items have different structures
   - Implement logic to skip or provide default values for missing fields
   - Consider adding a configuration option to control this behavior
+  - Handle optimisation to handle expandWildcardFields in each sub fields children and also not call it if current model is an array and has no wildcard type 'user.*.name' has the structure could be different
 
 ## Medium Priority
 - [ ] Update `expandWildcardFields` to properly manage `parentModel` for wildcard expansions

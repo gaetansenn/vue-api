@@ -34,11 +34,11 @@ describe('useTransform', () => {
 
     const fields = [
       {
-        key: 'user', 
+        key: 'user',
         fields: [
           'name',
           {
-            key: 'details', 
+            key: 'details',
             fields: [
               'age',
               { key: 'city', newKey: 'location' },
@@ -71,7 +71,7 @@ describe('useTransform', () => {
 
     const fields = [
       {
-        key: 'users', 
+        key: 'users',
         fields: [
           'id',
           { key: 'name', newKey: 'fullName' },
@@ -118,7 +118,7 @@ describe('useTransform', () => {
       email: 'john@example.com',
       password: 'secret123',
     };
-    
+
     const fields = [
       {
         key: '*',
@@ -134,7 +134,7 @@ describe('useTransform', () => {
     });
   });
 
-  it ('should handle wildcard fields and retrieve only specified fields', () => {
+  it('should handle wildcard fields and retrieve only specified fields', () => {
     const input = {
       data: {
         user1: { name: 'Alice', age: 30, sexe: 'F' },
@@ -370,5 +370,64 @@ describe('useTransform', () => {
       email: 'john@gmail.com',
     });
   })
-  
+
+  it('should handle wildcard with specific array field override', () => {
+    const input = {
+      users: [{
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+      }, {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com',
+      }]
+    }
+
+    const fields = [
+      {
+        key: 'users',
+        fields: [
+          '*',
+          { key: 'email', mapping: ({ model }) => model.email.replace('@example.com', '@gmail.com') }
+        ]
+      }
+    ]
+
+    const { value } = useTransform(input, fields);
+
+    expect(value).toEqual({
+      users: [
+        { firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
+        { firstName: 'Jane', lastName: 'Doe', email: 'jane@gmail.com' }
+      ]
+    });
+  })
+
+  it('should handle wildcard on root level with array', () => {
+    const input = [{
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    }, {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      email: 'jane@example.com',
+    }]
+
+    const fields = [
+      '*',
+      { key: 'email', mapping: ({ model }) => model.email.replace('@example.com', '@gmail.com') }
+    ]
+
+    const { value } = useTransform(input, fields);
+
+    expect(value).toEqual(
+      [
+        { firstName: 'John', lastName: 'Doe', email: 'john@gmail.com' },
+        { firstName: 'Jane', lastName: 'Doe', email: 'jane@gmail.com' }
+      ]
+    );
+  })
+
 });
