@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.17
+
+### Patch Changes
+
+- fix(core:transform): fix default value
+
 ## 1.0.16
 
 ### Patch Changes
