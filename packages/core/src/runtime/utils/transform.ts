@@ -57,6 +57,8 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
     const hasPath = (field as FieldObject).path
     const hasScope = (field as FieldObject).scope
+    const hasFields = (field as FieldObject).fields
+    const hasMapping = (field as FieldObject).mapping
 
     let key: string = (isObject(field) ? (field as FieldObject).newKey || (field as FieldObject).key : field) as string
 
@@ -76,16 +78,14 @@ function extractModel<T>(fields: Field[] = [], model: any, context?: IContext, f
 
     // Check for empty value and handle default value
     if (isObject(field)) {
-      if (updatedModel === null || isEmpty(updatedModel) || !(field as FieldObject).mapping || ((field as FieldObject).path || (!(field as FieldObject).fields)) ? false : get(updatedModel, (field as FieldObject).key) === null || get(updatedModel, (field as FieldObject).key) === undefined) {
-        if (!(field as FieldObject).default) return
-
-        set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
-        return
+      if (updatedModel === null || isEmpty(updatedModel) || get(updatedModel, (field as FieldObject).key) === null || get(updatedModel, (field as FieldObject).key) === undefined) {
+        if ((field as FieldObject).default) set(newModel, normalizedKey, (typeof (field as FieldObject).default === 'function') ? (field as FieldObject).default(context) : (field as FieldObject).default)
+        if (!hasFields && !hasMapping) return
       }
     } else if (model === null || isEmpty(model) || get(model, field as string) === null) return
 
     // Return value if only key access
-    if ((isObject(field) && (!(field as FieldObject).mapping && !((field as FieldObject).fields)) && !((field as FieldObject).path)) || !isObject(field)) {
+    if ((isObject(field) && (!hasMapping && !hasFields && !hasPath) || !isObject(field))) {
       set(newModel, normalizedKey, get(model, isObject(field) ? (field as FieldObject).key as string : field as string))
       return get(newModel, normalizedKey)
     }

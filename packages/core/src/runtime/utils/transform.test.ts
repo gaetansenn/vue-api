@@ -134,6 +134,33 @@ describe('useTransform', () => {
     });
   });
 
+  it('should handle omit with path', () => {
+    const input = {
+      user: {
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'secret123',
+      }
+    };
+
+    const fields = [
+      {
+        key: 'test',
+        path: 'user',
+        fields: [{ key: '*', omit: ['password'] }],
+      }
+    ];
+
+    const { value } = useTransform(input, fields);
+
+    expect(value).toEqual({
+      test: {
+        name: "John Doe",
+        email: "john@example.com"
+      }
+    });
+  });
+
   it('should handle wildcard fields and retrieve only specified fields', () => {
     const input = {
       data: {
@@ -428,6 +455,52 @@ describe('useTransform', () => {
         { firstName: 'Jane', lastName: 'Doe', email: 'jane@gmail.com' }
       ]
     );
+  })
+
+  it('should create field with key if default value is provided', () => {
+    const input = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com'
+    }
+
+    const fields = [
+      {
+        key: 'password',
+        default: '123456'
+      }
+    ]
+
+    const { value } = useTransform(input, fields);
+
+    expect(value).toEqual({
+      password: '123456'
+    })
+  })
+
+  it('should create field with key if default value is provided and wildcard', () => {
+    const input = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com'
+    }
+
+    const fields = [
+      '*',
+      {
+        key: 'password',
+        default: '123456'
+      }
+    ]
+
+    const { value } = useTransform(input, fields);
+
+    expect(value).toEqual({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      password: '123456'
+    })
   })
 
 });

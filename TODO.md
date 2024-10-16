@@ -1,6 +1,7 @@
 # TODO
 
 ## High Priority
+- [ ] Remove map on 
 - [ ] Omit value when parent has * but field has newKey we should omit the newKey
 - [ ] Fix bug of key * with omit with parent path ?
 ```ts
