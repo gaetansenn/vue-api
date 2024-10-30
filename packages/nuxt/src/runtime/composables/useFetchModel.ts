@@ -25,7 +25,26 @@ function parseUrlAndOptions<T>(
   return ['', urlOrOptions]
 }
 
-export default function (defaultOptions?: CustomTransformOptions) {
+type UseFetchModelReturn = {
+  $fetch: {
+    get: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+    post: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+    put: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+    patch: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+    delete: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+    head: <T, TransformedT = T>(urlOrOptions?: string | CustomTransformOptions, options?: CustomTransformOptions) => Promise<TransformedT>;
+  };
+  useFetch: {
+    get: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+    post: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+    put: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+    patch: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+    delete: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+    head: <T, TransformedT = T>(urlOrOptions?: string | ExtendedUseFetchOptions<T>, options?: ExtendedUseFetchOptions<T>) => ReturnType<typeof useFetch<T, Error, string, TransformedT>>;
+  };
+};
+
+export default function (defaultOptions?: CustomTransformOptions): UseFetchModelReturn {
   function createFetchMethod(methodName: RouterMethod) {
     return async <T, TransformedT = T>(
       urlOrOptions?: string | CustomTransformOptions,
