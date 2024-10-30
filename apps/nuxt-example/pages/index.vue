@@ -28,7 +28,9 @@
 </template>
 
 <script setup lang="ts">
-const { get } = await useApiUsers()
+const { get } = useApiUsers()
 
 const users = await get()
+
+console.log(users.data.value)
 </script>

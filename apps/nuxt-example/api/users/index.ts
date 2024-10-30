@@ -34,7 +34,7 @@ export interface UserListItem {
   departmentSummary?: { [key: string]: string };
 }
 
-export default async function () {
+export default function () {
   const { useFetch } = useFetchModel({
     baseURL: "https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users",
   });
