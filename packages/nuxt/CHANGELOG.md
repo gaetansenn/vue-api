@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.2
+
+### Patch Changes
+
+- Fix d.ts generation type
+
 ## 2.0.1
 
 ### Patch Changes
