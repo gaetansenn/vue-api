@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.1
+
+### Patch Changes
+
+- Fix useFetch injection composable
+
 ## 2.0.0
 
 ### Major Changes
