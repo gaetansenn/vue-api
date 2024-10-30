@@ -1,59 +1,107 @@
 import type { FetchOptions } from 'ofetch'
-import type { IContext, IRequestOptions } from '@vue-api/core'
-import { useOfetchModel } from '@vue-api/core'
-import { useAsyncData, type AsyncData, type NuxtError } from 'nuxt/app'
+import type { RouterMethod } from 'h3'
+import type { ITransformRequestOptions, IContext } from '@vue-api/core'
+import { useTransform } from '@vue-api/core'
+import type { UseFetchOptions } from '#app'
 
-type HttpMethod = 'get' | 'patch' | 'post' | 'put' | 'delete' | 'head'
-
-type ReturnType<M, UseAsyncData extends boolean> = UseAsyncData extends true ? AsyncData<M, NuxtError> : Promise<M>
-
-export interface IHttpModel<T, UseAsyncData extends boolean> {
-  get<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
-  patch<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
-  post<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
-  put<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
-  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
-  head<M>(urlOrOptions?: string | IRequestOptions<Omit<FetchOptions, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): ReturnType<M, UseAsyncData>
+interface CustomTransformOptions extends FetchOptions {
+  transform?: ITransformRequestOptions
+  context?: IContext
 }
 
-export default function<M, UseAsyncData extends boolean = true>(options: FetchOptions & {
+type ExtendedUseFetchOptions<T, R = T> = Omit<UseFetchOptions<T>, 'transform'> & {
+  transform?: ITransformRequestOptions | ((response: T) => R)
   context?: IContext
-  useAsyncData?: UseAsyncData
-}): IHttpModel<FetchOptions, UseAsyncData> {
-  const { useAsyncData: useAsyncDataOption = true, ..._options } = options
-  const model = useOfetchModel(_options)
+}
 
-  type RequestOptions = IRequestOptions<Omit<FetchOptions, 'body'>> & { useAsyncData: UseAsyncData }
+function parseUrlAndOptions<T>(
+  urlOrOptions?: string | T,
+  options?: T,
+): [string, T | undefined] {
+  if (typeof urlOrOptions === 'string') {
+    return [urlOrOptions, options]
+  }
+  return ['', urlOrOptions]
+}
 
-  function parseUrlAndOptions(urlOrOptions?: string | RequestOptions, options?: RequestOptions): [string, RequestOptions | undefined] {
-    if (typeof urlOrOptions === 'string') {
-      return [urlOrOptions, options]
+export default function (defaultOptions?: CustomTransformOptions) {
+  function createFetchMethod(methodName: RouterMethod) {
+    return async <T, TransformedT = T>(
+      urlOrOptions?: string | CustomTransformOptions,
+      options?: CustomTransformOptions,
+    ): Promise<TransformedT> => {
+      const [url, params] = parseUrlAndOptions(urlOrOptions, options)
+      const mergedOptions = {
+        ...defaultOptions,
+        ...params,
+        method: methodName,
+        context: { ...defaultOptions?.context, ...params?.context },
+        transform: { ...defaultOptions?.transform, ...params?.transform },
+      }
+
+      const response = await $fetch<T>(url, mergedOptions)
+
+      if (mergedOptions?.transform?.fields) {
+        return useTransform(response, mergedOptions.transform.fields, {
+          ...mergedOptions,
+          context: mergedOptions.context,
+        }).value as TransformedT
+      }
+
+      return response as unknown as TransformedT
     }
-    return ['', urlOrOptions]
   }
 
-  function createMethod<M>(methodName: HttpMethod) {
-    return (urlOrOptions?: string | RequestOptions, _options?: RequestOptions): ReturnType<M, UseAsyncData> => {
-      const [url, params] = parseUrlAndOptions(urlOrOptions, _options)
+  function createUseFetchMethod(methodName: RouterMethod) {
+    return <T, TransformedT = T>(
+      urlOrOptions?: string | ExtendedUseFetchOptions<T>,
+      options?: ExtendedUseFetchOptions<T>,
+    ) => {
+      const [url, params] = parseUrlAndOptions(urlOrOptions, options)
+      const mergedOptions = {
+        ...defaultOptions,
+        ...params,
+        context: { ...defaultOptions?.context, ...params?.context },
+        transform: { ...defaultOptions?.transform, ...params?.transform },
+      }
 
-      if (params?.useAsyncData === false || useAsyncDataOption === false) {
-        return model[methodName]<M>(url, params) as ReturnType<M, UseAsyncData>
-      }
-      else {
-        return useAsyncData<M, NuxtError>(
-          url,
-          () => model[methodName]<M>(url, params),
-        ) as ReturnType<M, UseAsyncData>
-      }
+      const transformFn = typeof mergedOptions?.transform === 'function'
+        ? mergedOptions.transform
+        : (response: T) => {
+          if (mergedOptions?.transform?.fields) {
+            return useTransform(response, mergedOptions.transform.fields, {
+              ...mergedOptions,
+              context: mergedOptions.context,
+            }).value as TransformedT
+          }
+
+          return response
+        }
+
+      return useFetch<T, Error, string, TransformedT>(url || '/', {
+        method: methodName,
+        ...mergedOptions,
+        transform: transformFn,
+      })
     }
   }
 
   return {
-    get: createMethod<M>('get'),
-    patch: createMethod<M>('patch'),
-    post: createMethod<M>('post'),
-    put: createMethod<M>('put'),
-    delete: createMethod<M>('delete'),
-    head: createMethod<M>('head'),
-  } as IHttpModel<FetchOptions, UseAsyncData>
+    $fetch: {
+      get: createFetchMethod('get'),
+      post: createFetchMethod('post'),
+      put: createFetchMethod('put'),
+      patch: createFetchMethod('patch'),
+      delete: createFetchMethod('delete'),
+      head: createFetchMethod('head'),
+    },
+    useFetch: {
+      get: createUseFetchMethod('get'),
+      post: createUseFetchMethod('post'),
+      put: createUseFetchMethod('put'),
+      patch: createUseFetchMethod('patch'),
+      delete: createUseFetchMethod('delete'),
+      head: createUseFetchMethod('head'),
+    },
+  }
 }

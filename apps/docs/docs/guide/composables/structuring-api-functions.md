@@ -4,108 +4,67 @@ When creating functions within the `api` folder, it's important to understand ho
 
 ## Choosing a Provider
 
-Vue API works with different providers to handle HTTP requests. Currently, the main provider is the HTTP Ofetch module (https://github.com/unjs/ofetch), which allows for both client-side and server-side requests. In the future, additional providers like Axios or GraphQL may be added.
+### Vue.js (@vue-api/core)
+In Vue.js applications, you can choose different providers to handle HTTP requests. Currently, the main provider is `ofetch`, with plans to support other providers like Axios or GraphQL in the future.
 
-To use a provider, you need to import the appropriate model. For Ofetch, we use the `useOFetchModel` from `@vue-api/core`.
-
-
-::: warning
-When using the `oftech` provider with Nuxt, there's a special `useFetchModel` composable available. This composable automatically wraps the API calls with `useAsyncData` to handle SSR hydration. For more information on `useAsyncData`, refer to the [Nuxt documentation](https://nuxt.com/docs/api/composables/use-async-data).
-:::
-
-## Example: Structuring API Functions
-
-When structuring API functions, we typically return the necessary functions for interacting with the API. In this example, we have `findOne` and `get` methods for retrieving user data.
-You have the flexibility to name these methods as you see fit, but the idea is to always use the available methods of $fetch, which correspond to the standard HTTP methods:
-
-::: code-group
-```ts [typing.ts]
-export interface IHttpModel<T> {
-  get<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  post<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  put<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  patch<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  head<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-}
-```
-:::
-
-As we can see, we have the basic HTTP methods: get, post, put, patch, delete, and head.
-Here's an example of how to structure your API functions:
-
-::: code-group
-```ts [api/users/index.ts]
-import type { Field, IRequestOptions } from '@vue-api/core'
-
-export interface User {
-  id: String;
-  name: String;
-  to?: String;
-}
-
+```typescript
+// api/users/index.ts
 export default function () {
-  const $fetch = useFetchModel({
-    baseURL: 'https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users'
+  const $fetch = useOfetchModel({
+    baseURL: 'https://api.example.com/users'
   })
 
-  const USER_FIELD = ['id', 'name']
-  const USER_FIELDS: Field[] = [...USER_FIELD, {
-    key: 'to',
-    mapping: ({ model }: { model: any }) => {
-      return { name: 'id', params: { id: model.id } }
-    }
-  }]
-
   return {
-    findOne: async (userId: string, options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
-      return $fetch.get<User>(userId, {
-        ...options,
-        transform: {
-          fields: USER_FIELD,
-          context: {}
-        }
-      })
-    },
-    get: async (options?: IRequestOptions<Omit<RequestInit, 'body'>>) => {
-      return $fetch.get<User[]>({
-        ...options,
-        transform: {
-          fields: USER_FIELDS,
-          context: {}
-        }
-      })
-    },
+    get: () => $fetch.get('/users')
   }
 }
 ```
-:::
 
-::: code-group
-```vue [pages/users/index.vue]
-<template>
-  <div v-if="users.pending.value">Loading ...</div>
-  <div v-else>
-    <NuxtLink :href="(user.to as string)" v-for="user in users.data.value" :key="(user.id as string)">
-      {{ user.name }}
-    </NuxtLink>
-  </div>
-</template>
+### Nuxt (@vue-api/nuxt)
+For Nuxt applications, we recommend using the built-in `useFetchModel` composable which provides both `$fetch` and `useFetch` methods:
 
-<script setup lang="ts">
-const { get } = useApiUsers()
+```typescript
+// api/users/index.ts
+export default function () {
+  const { $fetch, useFetch } = useFetchModel({
+    baseURL: 'https://api.example.com/users'
+  })
 
-const users = await get()
-
-</script>
+  return {
+    // For client-side operations
+    create: (userData) => $fetch.post('/users', { body: userData }),
+    // For SSR/hydration
+    list: () => useFetch.get('/users')
+  }
+}
 ```
+
+::: warning
+The main difference between Vue and Nuxt implementations is that Nuxt's `useFetchModel` returns an object with both `$fetch` and `useFetch` methods, while Vue's `useOfetchModel` returns `$fetch` directly.
 :::
 
-In this example, which demonstrates a Nuxt 3 application, we define two methods: `findOne` to retrieve a single user by ID, and `get` to retrieve all users. Both methods use the `$fetch.get` function, which corresponds to the HTTP GET method.
+## Example: Basic API Structure
+```typescript
+// api/users/index.ts
+export default function () {
+  const { $fetch, useFetch } = useFetchModel({
+    baseURL: 'https://api.example.com/users'
+  })
 
-The `transform` option in each method allows for field mapping and data transformation. This is where you can specify which fields should be included in the response and how they should be mapped or transformed.
+  const USER_FIELDS = ['id', 'name', 'email']
 
-It's worth noting that this example showcases the integration of our structured API functions within a Nuxt 3 context, leveraging its built-in features and conventions.
-
-Next, we can delve into explaining how field mapping and data transformation work in more detail.
-
+  return {
+    get: () => useFetch.get({
+      transform: {
+        fields: USER_FIELDS
+      }
+    }),
+    create: (userData) => $fetch.post({
+      body: userData,
+      transform: {
+        fields: USER_FIELDS
+      }
+    })
+  }
+}
+```

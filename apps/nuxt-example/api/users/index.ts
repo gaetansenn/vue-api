@@ -1,5 +1,4 @@
 import type { Field, IRequestOptions } from "@vue-api/core";
-import { useTransform } from "@vue-api/core";
 
 interface Project {
   name: string;
@@ -36,7 +35,7 @@ export interface UserListItem {
 }
 
 export default async function () {
-  const $fetch = useFetchModel({
+  const { useFetch } = useFetchModel({
     baseURL: "https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users",
   });
 
@@ -119,7 +118,7 @@ export default async function () {
       userId: string,
       options?: IRequestOptions<Omit<RequestInit, "body">>
     ) => {
-      return $fetch.get<User>(userId, {
+      return useFetch.get<User>(userId, {
         ...options,
         transform: {
           fields: USER_FIELDS,
@@ -128,7 +127,7 @@ export default async function () {
       });
     },
     get: async (options?: IRequestOptions<Omit<RequestInit, "body">>) => {
-      return $fetch.get<UserListItem[]>({
+      return useFetch.get<UserListItem[]>({
         ...options,
         transform: {
           fields: USERS_FIELDS,

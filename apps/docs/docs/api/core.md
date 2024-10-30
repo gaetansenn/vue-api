@@ -6,115 +6,85 @@ A composable for fetching and managing data models using `ofetch`.
 
 ### Usage
 
-```ts
+```typescript
 import { useOfetchModel } from '@vue-api/core'
 
-const model = useOfetchModel({
+const $fetch = useOfetchModel({
   baseURL: 'https://api.example.com',
   headers: {
     Authorization: 'Bearer token'
   }
 })
 
-const data = await model.get('/api/model')
+// Basic usage
+const user = await $fetch.get('/users/1')
+
+// With transform options
+const users = await $fetch.get<User[]>('/users', {
+  transform: {
+    fields: ['id', 'name', 'email']
+  }
+})
 ```
 
 ### Parameters
 
-- `options: FetchOptions & { context?: IContext }`: Configuration options for the fetch model.
+#### Options
 
-The `context` parameter options allows you to pass context that can be used in mapping functions. This context is injected into the mapping process and can be accessed within mapping functions.
-
-```ts
-interface FetchOptions<R extends ResponseType = ResponseType> extends Omit<RequestInit, "body"> {
-    baseURL?: string;
-    body?: RequestInit["body"] | Record<string, any>;
-    ignoreResponseError?: boolean;
-    params?: SearchParameters;
-    query?: SearchParameters;
-    parseResponse?: (responseText: string) => any;
-    responseType?: R;
-    response?: boolean;
-    retry?: number | false;
-    onRequest?(context: FetchContext): Promise<void> | void;
-    onRequestError?(context: FetchContext & {
-        error: Error;
-    }): Promise<void> | void;
-    onResponse?(context: FetchContext & {
-        response: FetchResponse<R>;
-    }): Promise<void> | void;
-    onResponseError?(context: FetchContext & {
-        response: FetchResponse<R>;
-    }): Promise<void> | void;
-}
-
-interface RequestInit {
-    /** A BodyInit object or null to set request's body. */
-    body?: BodyInit | null;
-    /** A string indicating how the request will interact with the browser's cache to set request's cache. */
-    cache?: RequestCache;
-    /** A string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. Sets request's credentials. */
-    credentials?: RequestCredentials;
-    /** A Headers object, an object literal, or an array of two-item arrays to set request's headers. */
-    headers?: HeadersInit;
-    /** A cryptographic hash of the resource to be fetched by request. Sets request's integrity. */
-    integrity?: string;
-    /** A boolean to set request's keepalive. */
-    keepalive?: boolean;
-    /** A string to set request's method. */
-    method?: string;
-    /** A string to indicate whether the request will use CORS, or will be restricted to same-origin URLs. Sets request's mode. */
-    mode?: RequestMode;
-    priority?: RequestPriority;
-    /** A string indicating whether request follows redirects, results in an error upon encountering a redirect, or returns the redirect (in an opaque fashion). Sets request's redirect. */
-    redirect?: RequestRedirect;
-    /** A string whose value is a same-origin URL, "about:client", or the empty string, to set request's referrer. */
-    referrer?: string;
-    /** A referrer policy to set request's referrerPolicy. */
-    referrerPolicy?: ReferrerPolicy;
-    /** An AbortSignal to set request's signal. */
-    signal?: AbortSignal | null;
-    /** Can only be null. Used to disassociate request from any Window. */
-    window?: null;
+```typescript
+interface FetchOptions {
+  baseURL?: string
+  headers?: Record<string, string>
+  context?: IContext
 }
 ```
 
-### Return Value
+- `baseURL`: The base URL for all requests
+- `headers`: Default headers to be sent with every request
+- `context`: Context object that can be accessed in transform functions
 
-- `IHttpModel<FetchOptions>`: An object with methods for different HTTP requests (`get`, `post`, `put`, `patch`, `delete`, `head`).
+### Transform Options
 
-```ts
-export interface IHttpModel<T> {
-  get<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  post<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  put<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  patch<M>(urlOrOptions?: string | IRequestOptions<T>, options?: IRequestOptions<T>): Promise<M>;
-  delete<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
-  head<M>(urlOrOptions?: string | IRequestOptions<Omit<T, 'body'>>, options?: IRequestOptions<Omit<T, 'body'>>): Promise<M>;
+```typescript
+interface TransformOptions {
+  fields: (Field | string)[]
+  scope?: string
+  format?: 'camelCase'
+  context?: IContext
 }
 ```
 
-## `useTransform`
+### Available Methods
 
-A composable for transforming data models based on specified fields and options.
+The `$fetch` instance provides standard HTTP methods:
+- `get<T>(url, options?)`
+- `post<T>(url, options?)`
+- `put<T>(url, options?)`
+- `patch<T>(url, options?)`
+- `delete<T>(url, options?)`
+- `head<T>(url, options?)`
 
-```ts
-useTransform<T>(model: MaybeRef<T>, fields: (Field[] | FieldFunction) = [], context?: IContext, options?: ITransformOptions)
+### Example with Advanced Transform
+
+```typescript
+const users = await $fetch.get<UserResponse[]>('/users', {
+  transform: {
+    fields: [
+      '*',  // Include all fields
+      {
+        key: 'fullName',
+        mapping: ({ model }) => `${model.firstName} ${model.lastName}`
+      },
+      {
+        key: 'projects.*.status',
+        fields: ['id', 'name', 'progress']
+      }
+    ],
+    format: 'camelCase'
+  }
+})
 ```
 
-### Return Value
-
-The `useTransform` function returns an object with two properties:
-
-- `getEmpty`: A function that returns an empty model based on the provided fields.
-  ```ts
-  getEmpty<T>(): T
-  ```
-
-- `value`: The result of applying the transformation to the input model.
-  ```ts
-  value: T
-  ```
-
-
-
+::: tip
+For Nuxt applications, consider using `@vue-api/nuxt` which provides additional SSR capabilities through `useFetchModel`.
+:::

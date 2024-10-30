@@ -1,8 +1,8 @@
-import { ref, unref, type MaybeRef } from 'vue';
+import { unref, type MaybeRef } from 'vue';
 import { IContext } from './context';
 import { camelCase, isEmpty, isObject, get, set } from '.';
 
-export type MappingFunction = (args: { model: any, key?: string, newModel?: any, parentModel?: any, originModel?: any, context?: IContext }) => any;
+export type MappingFunction = (args: { model: any, key?: string, newModel: any, parentModel?: any, originModel?: any, context?: IContext }) => any;
 export type FilterFunction = (m: any) => boolean;
 export type Field = FieldObject | string
 

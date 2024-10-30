@@ -35,6 +35,9 @@ export default defineNuxtConfig({
 })
 ```
 
+::: tip
+When using Nuxt, the module provides both `$fetch` and `useFetch` methods through `useFetchModel`. Use `$fetch` for client-side operations and `useFetch` for SSR-compatible data fetching.
+:::
 
 That's it! You can now use **Vue API** in your Nuxt 3 project.
 
