@@ -1,5 +1,11 @@
 # vue-example
 
+## 1.0.19
+
+### Patch Changes
+
+- @vue-api/vue@1.0.18
+
 ## 1.0.18
 
 ### Patch Changes

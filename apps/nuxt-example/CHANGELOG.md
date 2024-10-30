@@ -1,5 +1,17 @@
 # nuxt-example
 
+## 2.0.0
+
+### Major Changes
+
+- f42f806: refactoring usage of useFetch / fetch with nuxt
+
+### Patch Changes
+
+- Updated dependencies [f42f806]
+  - @vue-api/core@2.0.0
+  - @vue-api/nuxt@2.0.0
+
 ## 1.0.25
 
 ### Patch Changes
