@@ -3,6 +3,7 @@ import type { RouterMethod } from 'h3'
 import type { ITransformRequestOptions, IContext } from '@vue-api/core'
 import { useTransform } from '@vue-api/core'
 import type { UseFetchOptions } from '#app'
+import { useFetch } from '#app'
 
 interface CustomTransformOptions extends FetchOptions {
   transform?: ITransformRequestOptions
