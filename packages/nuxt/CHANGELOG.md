@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.3
+
+### Patch Changes
+
+- fix: try using #imports for useFetch
+
 ## 2.0.2
 
 ### Patch Changes
