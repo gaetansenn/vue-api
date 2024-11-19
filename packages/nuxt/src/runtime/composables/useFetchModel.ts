@@ -5,6 +5,8 @@ import { useTransform } from '@vue-api/core'
 import type { UseFetchOptions } from 'nuxt/app'
 import { useFetch } from '#imports'
 
+type UppercaseRouterMethod = Uppercase<RouterMethod>
+
 interface CustomTransformOptions extends FetchOptions {
   transform?: ITransformRequestOptions
   context?: IContext
@@ -44,8 +46,8 @@ function parseUrlAndOptions<T>(
 //   };
 // };
 
-export default function (defaultOptions?: CustomTransformOptions): UseFetchModelReturn {
-  function createFetchMethod(methodName: RouterMethod) {
+export default function (defaultOptions?: CustomTransformOptions) {
+  function createFetchMethod(methodName: UppercaseRouterMethod) {
     return async <T, TransformedT = T>(
       urlOrOptions?: string | CustomTransformOptions,
       options?: CustomTransformOptions,
@@ -72,7 +74,7 @@ export default function (defaultOptions?: CustomTransformOptions): UseFetchModel
     }
   }
 
-  function createUseFetchMethod(methodName: RouterMethod) {
+  function createUseFetchMethod(methodName: UppercaseRouterMethod) {
     return <T, TransformedT = T>(
       urlOrOptions?: string | ExtendedUseFetchOptions<T>,
       options?: ExtendedUseFetchOptions<T>,
@@ -108,20 +110,20 @@ export default function (defaultOptions?: CustomTransformOptions): UseFetchModel
 
   return {
     $fetch: {
-      get: createFetchMethod('get'),
-      post: createFetchMethod('post'),
-      put: createFetchMethod('put'),
-      patch: createFetchMethod('patch'),
-      delete: createFetchMethod('delete'),
-      head: createFetchMethod('head'),
+      get: createFetchMethod('GET'),
+      post: createFetchMethod('POST'),
+      put: createFetchMethod('PUT'),
+      patch: createFetchMethod('PATCH'),
+      delete: createFetchMethod('DELETE'),
+      head: createFetchMethod('HEAD'),
     },
     useFetch: {
-      get: createUseFetchMethod('get'),
-      post: createUseFetchMethod('post'),
-      put: createUseFetchMethod('put'),
-      patch: createUseFetchMethod('patch'),
-      delete: createUseFetchMethod('delete'),
-      head: createUseFetchMethod('head'),
+      get: createUseFetchMethod('GET'),
+      post: createUseFetchMethod('POST'),
+      put: createUseFetchMethod('PUT'),
+      patch: createUseFetchMethod('PATCH'),
+      delete: createUseFetchMethod('DELETE'),
+      head: createUseFetchMethod('HEAD'),
     },
   }
 }
