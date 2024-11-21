@@ -1,5 +1,13 @@
 # @vue-api/nuxt
 
+## 2.0.5
+
+### Patch Changes
+
+- fix: fix declaration and type / function exposition from core
+- Updated dependencies
+  - @vue-api/core@2.0.1
+
 ## 2.0.4
 
 ### Patch Changes

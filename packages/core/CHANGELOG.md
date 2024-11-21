@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+### Patch Changes
+
+- fix: fix declaration and type / function exposition from core
+
 ## 2.0.0
 
 ### Major Changes
