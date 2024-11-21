@@ -9,6 +9,16 @@ export interface ModuleOptions {
   ignorePrefixes: string[]
 }
 
+export type {
+  Field,
+  ITransformOptions,
+  IRequestOptions,
+  ITransformRequestOptions,
+  IContext
+} from '@vue-api/core'
+
+export { useTransform } from '@vue-api/core'
+
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name,

@@ -1,4 +1,4 @@
-import type { Field, IRequestOptions } from "@vue-api/core";
+import type { Field, IRequestOptions } from "@vue-api/nuxt"
 
 interface Project {
   name: string;
