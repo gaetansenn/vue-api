@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.7
+
+### Patch Changes
+
+- feat: create @vue-api/core alias from nuxt
+
 ## 2.0.6
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 import type { FetchOptions } from 'ofetch'
 import type { ITransformRequestOptions, IContext } from '@vue-api/core'
 import { useTransform } from '@vue-api/core'
-import type { UseFetchOptions } from 'nuxt/app'
+import type { UseFetchOptions, AsyncData } from 'nuxt/app'
 import { useFetch } from '#imports'
 
 type RequestType = "GET" | "HEAD" | "PATCH" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE"
@@ -58,7 +58,7 @@ export default function (defaultOptions?: CustomTransformOptions) {
     return <T, TransformedT = T>(
       urlOrOptions?: string | ExtendedUseFetchOptions<T, TransformedT>,
       options?: ExtendedUseFetchOptions<T, TransformedT>
-    ) => {
+    ): AsyncData<TransformedT, Error | null> => {
       const [url, params] = parseUrlAndOptions(urlOrOptions, options)
       const mergedOptions = {
         ...defaultOptions,
@@ -79,7 +79,7 @@ export default function (defaultOptions?: CustomTransformOptions) {
           return response as unknown as TransformedT
         }
 
-      return useFetch<T>(url || '/', {
+      return useFetch<T, Error, string, TransformedT>(url || '/', {
         ...mergedOptions,
         method: methodName,
         transform: transformFn,

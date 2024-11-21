@@ -33,5 +33,4 @@ const { get } = useApiUsers()
 
 const users = await get()
 
-console.log(users.data.value[0])
 </script>
