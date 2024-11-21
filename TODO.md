@@ -1,6 +1,7 @@
 # TODO
 
 ## High Priority
+- [ ] Resolve npm install isssue of @vue-api/core (need to install @vue-api/core) manually actually
 - [ ] Remove map on 
 - [ ] Omit value when parent has * but field has newKey we should omit the newKey
 - [ ] Fix bug of key * with omit with parent path ?

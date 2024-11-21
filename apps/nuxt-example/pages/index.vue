@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <!-- <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">User Directory</h1>
     <div v-if="users.status.value === 'pending'" class="text-center text-gray-600">
       <p class="text-xl">Loading users...</p>
@@ -24,13 +24,27 @@
         </NuxtLink>
       </div>
     </div>
-  </div>
+  </div> -->
+  <div>Test</div>
 </template>
 
 <script setup lang="ts">
-const { get } = useApiUsers()
+// const { data } = await useFetch('https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users')
 
-const users = await get()
+// console.log('data useFetch', data)
 
-console.log(users.data.value)
+
+const { useFetch } = useFetchModel()
+
+const { data: data2 } = await useFetch.get('https://64cbdfbd2eafdcdc85196e4c.mockapi.io/users', {
+  key: 'test'
+})
+
+console.log('data useFetchModel', data2.value)
+
+// const { findOne } = useApiTest()
+
+// const users = await findOne()
+
+// console.log('users', users.data.value)
 </script>

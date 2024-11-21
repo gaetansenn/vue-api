@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.4
+
+### Patch Changes
+
+- fix: fix method type to uppercase
+
 ## 2.0.3
 
 ### Patch Changes
