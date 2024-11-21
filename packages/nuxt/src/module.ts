@@ -1,7 +1,6 @@
-import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addImportsDir, resolvePath } from '@nuxt/kit'
 import { generateComposables } from '@vue-api/core/node'
 import { name, version } from '../package.json'
-import { useTransform } from '@vue-api/core'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -18,8 +17,6 @@ export type {
   IContext,
 } from '@vue-api/core'
 
-export { useTransform }
-
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -33,8 +30,11 @@ export default defineNuxtModule<ModuleOptions>({
     ignorePatterns: [],
     ignorePrefixes: ['_'],
   },
-  setup(options, nuxt) {
+  async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
+
+    // Create resolver to resolve dist paths within @vunix/core
+    const core = createResolver(await resolvePath('@vue-api/core', { cwd: import.meta.url }))
 
     // Generate composables on build
     nuxt.hook('ready', async () => {
@@ -54,7 +54,9 @@ export default defineNuxtModule<ModuleOptions>({
     addImportsDir(resolve(__dirname, 'runtime/composables'))
 
     // Transpile @vue-api/core
-    nuxt.options.build.transpile.push('@vue-api/core')
+    const coreRootPath = core.resolve('..') // root dist directory
+    nuxt.options.build.transpile.push(coreRootPath)
+    nuxt.options.alias['@vue-api/core'] = coreRootPath
 
     // Add types
     nuxt.hook('prepare:types', ({ references }) => {
