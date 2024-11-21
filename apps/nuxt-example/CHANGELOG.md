@@ -1,5 +1,12 @@
 # nuxt-example
 
+## 2.0.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @vue-api/nuxt@2.0.8
+
 ## 2.0.7
 
 ### Patch Changes

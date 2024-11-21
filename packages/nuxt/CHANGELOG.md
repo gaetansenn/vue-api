@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.8
+
+### Patch Changes
+
+- fix: fix returning type of methods
+
 ## 2.0.7
 
 ### Patch Changes
