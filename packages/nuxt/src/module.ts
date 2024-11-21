@@ -1,6 +1,7 @@
 import { defineNuxtModule, createResolver, addImportsDir } from '@nuxt/kit'
 import { generateComposables } from '@vue-api/core/node'
 import { name, version } from '../package.json'
+import { useTransform } from '@vue-api/core'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -14,10 +15,11 @@ export type {
   ITransformOptions,
   IRequestOptions,
   ITransformRequestOptions,
-  IContext
+  IContext,
 } from '@vue-api/core'
 
-export { useTransform } from '@vue-api/core'
+export { useTransform }
+
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
