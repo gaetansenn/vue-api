@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.6
+
+### Patch Changes
+
+- fix: fix useTransform export
+
 ## 2.0.5
 
 ### Patch Changes
