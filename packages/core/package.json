@@ -54,6 +54,11 @@
     "tag-prefix": "@vunix/core@"
   },
   "peerDependencies": {
-    "ofetch": "~1.1.1"
+    "ofetch": "^1.1.1"
+  },
+  "peerDependenciesMeta": {
+    "ofetch": {
+      "optional": true
+    }
   }
 }
