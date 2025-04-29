@@ -53,4 +53,5 @@ const { params } = useRoute()
 const { findOne } = await useApiUsers()
 
 const user = await findOne(params.id as string)
+
 </script>

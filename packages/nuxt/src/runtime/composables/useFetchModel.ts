@@ -55,10 +55,10 @@ export default function (defaultOptions?: CustomTransformOptions) {
   }
 
   function createUseFetchMethod(methodName: RequestType) {
-    return <T, TransformedT = T>(
+    return <T, TransformedT = T, ErrorT = Error>(
       urlOrOptions?: string | ExtendedUseFetchOptions<T, TransformedT>,
       options?: ExtendedUseFetchOptions<T, TransformedT>
-    ): AsyncData<TransformedT, Error | null> => {
+    ): AsyncData<TransformedT, ErrorT> => {
       const [url, params] = parseUrlAndOptions(urlOrOptions, options)
       const mergedOptions = {
         ...defaultOptions,
@@ -79,7 +79,7 @@ export default function (defaultOptions?: CustomTransformOptions) {
           return response as unknown as TransformedT
         }
 
-      return useFetch<T, Error, string, TransformedT>(url || '/', {
+      return useFetch<T, ErrorT, string, TransformedT>(url || '/', {
         ...mergedOptions,
         method: methodName,
         transform: transformFn,
