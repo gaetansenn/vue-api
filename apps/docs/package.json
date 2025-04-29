@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "A flexible and provider-agnostic API handling library for Vue 3 and Nuxt 3. Supports multiple data providers like axios, ofetch, and GraphQL, and includes a robust model mapping feature.",
   "main": "index.js",

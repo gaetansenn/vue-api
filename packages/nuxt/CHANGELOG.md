@@ -1,5 +1,11 @@
 # @vue-api/nuxt
 
+## 2.0.9
+
+### Patch Changes
+
+- Handle error typing for useFetch
+
 ## 2.0.8
 
 ### Patch Changes
